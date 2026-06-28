@@ -1,11 +1,11 @@
 package middleware
 
 import (
+	"admin-service/utils"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 func AdminAuthMiddleware() gin.HandlerFunc {
@@ -17,29 +17,25 @@ func AdminAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
-		
-		// For demo purposes, accept any token starting with "admin"
-		if strings.HasPrefix(tokenString, "admin") {
-			c.Set("admin_id", 1)
-			c.Next()
-			return
-		}
-
-		// JWT validation (simplified for demo)
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return []byte("your-secret-key-here"), nil
-		})
-
-		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+		if tokenString == authHeader {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization format"})
 			c.Abort()
 			return
 		}
 
-		if claims, ok := token.Claims.(jwt.MapClaims); ok {
-			c.Set("admin_id", claims["admin_id"])
+		// Validate JWT token
+		claims, err := utils.ValidateAdminJWT(tokenString)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+			c.Abort()
+			return
 		}
+
+		// Set admin info in context
+		c.Set("admin_id", claims.AdminID)
+		c.Set("admin_email", claims.Email)
+		c.Set("admin_role", claims.Role)
 
 		c.Next()
 	}

@@ -15,11 +15,11 @@
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#FFD700",
-                        "background-light": "#FFFFFF",
-                        "background-dark": "#0C2D57",
-                        "zepto-blue": "#0C2D57",
-                        "zepto-yellow": "#FFD700",
+                        "primary": "#F59E0B",
+                        "background-light": "#FFFBEB",
+                        "background-dark": "#1E293B",
+                        "zepto-blue": "#1E293B",
+                        "zepto-yellow": "#F59E0B",
                         "zepto-green": "#10B981",
                     },
                     fontFamily: {
@@ -53,13 +53,13 @@
         }
 
         .payment-option:hover {
-            border-color: #0C2D57;
+            border-color: #1E293B;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(12, 45, 87, 0.15);
         }
 
         .payment-option.selected {
-            border-color: #0C2D57;
+            border-color: #1E293B;
             background-color: rgba(12, 45, 87, 0.05);
             box-shadow: 0 4px 12px rgba(12, 45, 87, 0.15);
         }
@@ -70,12 +70,12 @@
         }
 
         .dark .payment-option:hover {
-            border-color: #FFD700;
+            border-color: #F59E0B;
         }
 
         .dark .payment-option.selected {
-            border-color: #FFD700;
-            background-color: rgba(255, 215, 0, 0.1);
+            border-color: #F59E0B;
+            background-color: rgba(245, 158, 11, 0.1);
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
@@ -240,12 +240,12 @@
             if (selectedPaymentMethod) {
                 button.disabled = false;
                 button.classList.remove('bg-gray-400');
-                button.classList.add('bg-primary', 'hover:bg-yellow-500', 'transform', 'hover:scale-[1.02]', 'active:scale-[0.98]');
+                button.classList.add('bg-primary', 'hover:bg-amber-500', 'transform', 'hover:scale-[1.02]', 'active:scale-[0.98]');
                 button.textContent = 'Enable Auto-Pay';
             } else {
                 button.disabled = true;
                 button.classList.add('bg-gray-400');
-                button.classList.remove('bg-primary', 'hover:bg-yellow-500', 'transform', 'hover:scale-[1.02]', 'active:scale-[0.98]');
+                button.classList.remove('bg-primary', 'hover:bg-amber-500', 'transform', 'hover:scale-[1.02]', 'active:scale-[0.98]');
                 button.textContent = 'Select Payment Method';
             }
         }

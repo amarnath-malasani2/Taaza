@@ -14,8 +14,8 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <style type="text/tailwindcss">
         :root {
-            --golden-yellow: #FFD700;
-            --dark-blue: #0C2D57;
+            --golden-yellow: #F59E0B;
+            --dark-blue: #1E293B;
         }
 
         /* Smooth transitions */
@@ -64,7 +64,7 @@
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#0C2D57",
+                        "primary": "#1E293B",
                         "background-light": "#f6f7f8",
                         "content-light": "#ffffff",
                         "text-light": "#111827",
@@ -92,15 +92,15 @@
 
         /* Custom styles with your colors */
         .golden-bg {
-            background-color: #FFD700;
+            background-color: #F59E0B;
         }
 
         .dark-blue-text {
-            color: #0C2D57;
+            color: #1E293B;
         }
 
         .dark-blue-bg {
-            background-color: #0C2D57;
+            background-color: #1E293B;
         }
     </style>
 </head>
@@ -287,7 +287,7 @@
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <h2 class="text-lg sm:text-xl font-bold text-text-light">${addr.label}</h2>
-                                    ${addr.is_default ? '<span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full font-medium">Default</span>' : ''}
+                                    ${addr.is_default ? '<span class="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full font-medium">Default</span>' : ''}
                                 </div>
                             </div>
                             <div class="pl-13">

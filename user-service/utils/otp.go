@@ -32,7 +32,7 @@ func GenerateOTP() string {
 func StoreOTP(email, otp string) error {
 	ctx := context.Background()
 	key := fmt.Sprintf("otp:%s", email)
-	return RedisClient.Set(ctx, key, otp, 10*time.Minute).Err()
+	return RedisClient.Set(ctx, key, otp, 2*time.Minute).Err()
 }
 
 func VerifyOTP(email, otp string) bool {

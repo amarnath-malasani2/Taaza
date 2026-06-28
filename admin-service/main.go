@@ -36,9 +36,18 @@ func main() {
 
 	v1 := r.Group("/api/v1")
 	{
+		// Public admin routes (no auth required)
+		auth := v1.Group("/admin/auth")
+		{
+			auth.POST("/login", handlers.AdminLogin)
+		}
+
+		// Protected admin routes (auth required)
 		admin := v1.Group("/admin")
 		admin.Use(middleware.AdminAuthMiddleware())
 		{
+			admin.GET("/me", handlers.GetCurrentAdmin)
+			admin.POST("/logout", handlers.AdminLogout)
 			users := admin.Group("/users")
 			{
 				users.GET("", handlers.GetUsers)

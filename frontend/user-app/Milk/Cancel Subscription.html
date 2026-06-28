@@ -13,9 +13,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <style type="text/tailwindcss">
         :root {
-            --zepto-blue: #0C2D57;
-            --zepto-yellow: #FFD700;
-            --zepto-light-bg: #F8F4E9;
+            --zepto-blue: #1E293B;
+            --zepto-yellow: #F59E0B;
+            --zepto-light-bg: #FFFBEB;
             --zepto-manage-blue: #4A7B9D;
             --zepto-order-red: #D5715C;
             --zepto-green: #10B981;
@@ -132,7 +132,7 @@
         
         /* Focus indicators */
         .custom-radio:focus-visible + .radio-content {
-            outline: 2px solid #FFD700;
+            outline: 2px solid #F59E0B;
             outline-offset: 2px;
         }
         
@@ -294,11 +294,11 @@
         <footer class="p-4 bg-white/80 backdrop-blur-sm sticky bottom-0 border-t border-gray-200">
             <div class="space-y-3">
                 <button onclick="showConfirmationPopup()"
-                    class="w-full min-h-[48px] h-14 bg-[var(--zepto-order-red)] text-white font-bold text-lg rounded-lg shadow-lg hover:bg-red-600 transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-2 focus-visible:outline-yellow-400 focus-visible:outline-offset-2" aria-label="Confirm subscription cancellation">
+                    class="w-full min-h-[48px] h-14 bg-[var(--zepto-order-red)] text-white font-bold text-lg rounded-lg shadow-lg hover:bg-red-600 transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-2 focus-visible:outline-amber-400 focus-visible:outline-offset-2" aria-label="Confirm subscription cancellation">
                     Confirm Cancellation
                 </button>
                 <button onclick="keepSubscription()"
-                    class="w-full min-h-[48px] h-14 bg-gray-200 text-gray-800 font-bold text-lg rounded-lg hover:bg-gray-300 transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-2 focus-visible:outline-yellow-400 focus-visible:outline-offset-2" aria-label="Keep your subscription active">
+                    class="w-full min-h-[48px] h-14 bg-gray-200 text-gray-800 font-bold text-lg rounded-lg hover:bg-gray-300 transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-2 focus-visible:outline-amber-400 focus-visible:outline-offset-2" aria-label="Keep your subscription active">
                     Keep Subscription
                 </button>
             </div>

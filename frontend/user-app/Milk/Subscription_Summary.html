@@ -15,12 +15,12 @@
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#FFD700",
-                        "background-light": "#FFFFFF",
-                        "background-dark": "#0C2D57",
-                        "zepto-blue": "#0C2D57",
-                        "zepto-yellow": "#FFD700",
-                        "zepto-light-bg": "#F8F4E9",
+                        "primary": "#F59E0B",
+                        "background-light": "#FFFBEB",
+                        "background-dark": "#1E293B",
+                        "zepto-blue": "#1E293B",
+                        "zepto-yellow": "#F59E0B",
+                        "zepto-light-bg": "#FFFBEB",
                         "zepto-manage-blue": "#4A7B9D",
                         "zepto-order-red": "#D5715C",
                         "zepto-green": "#10B981",
@@ -65,7 +65,7 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, #FFD700, #0C2D57);
+            background: linear-gradient(90deg, #F59E0B, #1E293B);
         }
 
         .dark .invoice-section {
@@ -97,7 +97,7 @@
         }
 
         .step.active {
-            background-color: #0C2D57;
+            background-color: #1E293B;
             color: white;
         }
 
@@ -141,7 +141,7 @@
             width: 20px;
             height: 20px;
             border: 2px solid #f3f3f3;
-            border-top: 2px solid #0C2D57;
+            border-top: 2px solid #1E293B;
             border-radius: 50%;
         }
         
@@ -246,7 +246,7 @@
         <!-- Footer -->
         <footer class="p-4 bg-white/95 dark:bg-zinc-800/95 backdrop-blur-md sticky bottom-0 border-t border-gray-200 dark:border-zinc-700 shadow-lg">
             <button onclick="confirmSubscription()" 
-                class="w-full bg-gradient-to-r from-primary to-yellow-400 text-background-dark font-bold py-4 px-6 rounded-xl text-center hover:from-yellow-400 hover:to-primary transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus-visible:focus shadow-lg">
+                class="w-full bg-gradient-to-r from-primary to-amber-400 text-background-dark font-bold py-4 px-6 rounded-xl text-center hover:from-amber-400 hover:to-primary transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus-visible:focus shadow-lg">
                 Continue to Auto-Pay
             </button>
         </footer>
@@ -365,7 +365,7 @@
                         <div class="flex-1">
                             <div class="flex items-center gap-2 mb-1">
                                 <h3 class="font-bold text-gray-800 dark:text-gray-200">${addressData.label || 'Home'}</h3>
-                                ${addressData.is_default ? '<span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full font-medium">Default</span>' : ''}
+                                ${addressData.is_default ? '<span class="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full font-medium">Default</span>' : ''}
                             </div>
                             <p class="text-gray-700 dark:text-gray-300">${addressData.address_line || 'Address not available'}</p>
                             <p class="text-gray-500 dark:text-gray-400">${addressData.city || 'City'}, ${addressData.zip_code || 'ZIP'}</p>

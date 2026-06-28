@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Taaza Terms & Conditions</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap"
+    <title>Taaza - Terms & Conditions</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
         rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script>
@@ -14,9 +16,11 @@
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#FFD700",
-                        "background-light": "#FFFFFF",
-                        "background-dark": "#0C2D57",
+                        "primary": "#F59E0B",
+                        "primary-light": "#FEF3C7",
+                        "primary-dark": "#D97706",
+                        "background-light": "#FFFBEB",
+                        "background-dark": "#1E293B",
                     },
                     fontFamily: {
                         "display": ["Space Grotesk", "sans-serif"]
@@ -26,72 +30,241 @@
         }
     </script>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Hide scrollbar but keep scrolling */
+        html {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        html::-webkit-scrollbar {
+            display: none;
+        }
+
         body {
             font-family: 'Space Grotesk', sans-serif;
-            background: #FFFFFF;
-            color: #0C2D57;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1E293B 0%, #1E3A6F 100%);
+        }
+
+        .content-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(245, 158, 11, 0.08);
+        }
+
+        section + section {
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 1.25rem;
         }
     </style>
 </head>
 
-<body class="bg-background-light font-display antialiased min-h-screen">
-    <div class="max-w-2xl mx-auto p-6 sm:p-8">
-        <h1 class="text-3xl font-bold text-primary mb-6">Taaza Terms & Conditions</h1>
-        <div class="space-y-6 text-base">
+<body class="font-display antialiased">
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 bg-background-dark/90 backdrop-blur-md border-b border-white/5">
+        <div class="w-full max-w-lg mx-auto px-4 py-3.5 flex items-center gap-3">
+            <a href="3-Taaza-Login.html"
+                class="flex items-center justify-center w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 transition-colors">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <h1 class="text-lg font-semibold text-white">Terms & Conditions</h1>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <main class="w-full max-w-lg mx-auto px-4 py-5 pb-8">
+        <!-- Intro -->
+        <div class="content-card rounded-xl p-4 sm:p-5 mb-4">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-white font-semibold">Taaza Service Agreement</p>
+                    <p class="text-gray-400 text-xs">Last updated: June 2026</p>
+                </div>
+            </div>
+            <p class="text-gray-300 text-sm leading-relaxed">
+                These terms govern your use of the Taaza platform for fresh milk and farm produce delivery services. Please read them carefully.
+            </p>
+        </div>
+
+        <!-- Sections -->
+        <div class="content-card rounded-xl p-4 sm:p-5 space-y-4">
             <section>
-                <h2 class="text-xl font-semibold mb-2">1. Acceptance of Terms</h2>
-                <p>By accessing or using the Taaza app, you agree to be bound by these Terms & Conditions. If you do not
-                    agree, please do not use the app.</p>
-            </section>
-            <section>
-                <h2 class="text-xl font-semibold mb-2">2. User Responsibilities</h2>
-                <ul class="list-disc pl-6">
-                    <li>Provide accurate and complete information during registration and checkout.</li>
-                    <li>Maintain the confidentiality of your account credentials.</li>
-                    <li>Use the app for lawful purposes only.</li>
-                </ul>
-            </section>
-            <section>
-                <h2 class="text-xl font-semibold mb-2">3. Orders & Payments</h2>
-                <ul class="list-disc pl-6">
-                    <li>All orders are subject to availability and confirmation.</li>
-                    <li>Prices and product details may change without prior notice.</li>
-                    <li>Payments must be made using the methods provided in the app.</li>
-                </ul>
-            </section>
-            <section>
-                <h2 class="text-xl font-semibold mb-2">4. Delivery</h2>
-                <ul class="list-disc pl-6">
-                    <li>Delivery timelines are estimates and may vary due to unforeseen circumstances.</li>
-                    <li>Taaza is not responsible for delays caused by third-party logistics.</li>
-                </ul>
-            </section>
-            <section>
-                <h2 class="text-xl font-semibold mb-2">5. Account Deletion</h2>
-                <p>You may delete your account at any time. All personal data will be removed as per our Privacy Policy.
+                <h2 class="text-base font-semibold text-primary mb-2">1. Acceptance of Terms</h2>
+                <p class="text-gray-300 text-sm leading-relaxed">
+                    By accessing or using the Taaza app, you agree to be bound by these Terms & Conditions and our Privacy Policy.
+                    If you do not agree, please do not use the app.
                 </p>
             </section>
+
             <section>
-                <h2 class="text-xl font-semibold mb-2">6. Limitation of Liability</h2>
-                <p>Taaza is not liable for any indirect, incidental, or consequential damages arising from the use of
-                    the app.</p>
+                <h2 class="text-base font-semibold text-primary mb-2">2. Account & Registration</h2>
+                <ul class="text-gray-300 text-sm leading-relaxed space-y-1.5 list-none">
+                    <li class="flex items-start gap-2">
+                        <span class="text-primary mt-0.5">&#8226;</span>
+                        Provide accurate and complete information during registration.
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-primary mt-0.5">&#8226;</span>
+                        You are responsible for maintaining the confidentiality of your account credentials.
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-primary mt-0.5">&#8226;</span>
+                        One account per person. Accounts are non-transferable.
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-primary mt-0.5">&#8226;</span>
+                        Use the app for lawful purposes only.
+                    </li>
+                </ul>
             </section>
+
             <section>
-                <h2 class="text-xl font-semibold mb-2">7. Changes to Terms</h2>
-                <p>Taaza reserves the right to update these Terms & Conditions at any time. Continued use of the app
-                    constitutes acceptance of the revised terms.</p>
+                <h2 class="text-base font-semibold text-primary mb-2">3. Subscriptions & Orders</h2>
+                <ul class="text-gray-300 text-sm leading-relaxed space-y-1.5 list-none">
+                    <li class="flex items-start gap-2">
+                        <span class="text-primary mt-0.5">&#8226;</span>
+                        Milk subscriptions are ongoing until you cancel or pause them.
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-primary mt-0.5">&#8226;</span>
+                        You can modify, pause, or cancel subscriptions at any time from the app.
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-primary mt-0.5">&#8226;</span>
+                        All orders are subject to availability and confirmation.
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-primary mt-0.5">&#8226;</span>
+                        Prices may change with prior notice in the app.
+                    </li>
+                </ul>
             </section>
+
             <section>
-                <h2 class="text-xl font-semibold mb-2">8. Contact Us</h2>
-                <p>If you have any questions, please contact us at <a href="mailto:support@taaza.com"
-                        class="text-primary underline">support@taaza.com</a>.</p>
+                <h2 class="text-base font-semibold text-primary mb-2">4. Payments</h2>
+                <ul class="text-gray-300 text-sm leading-relaxed space-y-1.5 list-none">
+                    <li class="flex items-start gap-2">
+                        <span class="text-primary mt-0.5">&#8226;</span>
+                        Payments are processed through the methods available in the app.
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-primary mt-0.5">&#8226;</span>
+                        Subscription charges are billed as per your selected plan cycle.
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-primary mt-0.5">&#8226;</span>
+                        Failed payments may result in delivery pause until resolved.
+                    </li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="text-base font-semibold text-primary mb-2">5. Delivery</h2>
+                <ul class="text-gray-300 text-sm leading-relaxed space-y-1.5 list-none">
+                    <li class="flex items-start gap-2">
+                        <span class="text-primary mt-0.5">&#8226;</span>
+                        Deliveries are made daily as per your subscription schedule.
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-primary mt-0.5">&#8226;</span>
+                        Delivery timelines are estimates and may vary due to unforeseen circumstances.
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-primary mt-0.5">&#8226;</span>
+                        Ensure someone is available at the delivery address or provide safe drop instructions.
+                    </li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="text-base font-semibold text-primary mb-2">6. Freshness Guarantee</h2>
+                <p class="text-gray-300 text-sm leading-relaxed">
+                    Taaza guarantees farm-fresh quality for all products. If you receive a product that doesn't meet our freshness standards,
+                    report it within 2 hours of delivery for a replacement or credit.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="text-base font-semibold text-primary mb-2">7. Cancellation & Refunds</h2>
+                <ul class="text-gray-300 text-sm leading-relaxed space-y-1.5 list-none">
+                    <li class="flex items-start gap-2">
+                        <span class="text-primary mt-0.5">&#8226;</span>
+                        You can cancel your subscription at any time — no cancellation fees.
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-primary mt-0.5">&#8226;</span>
+                        Refunds for pre-paid plans will be credited within 5-7 business days.
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-primary mt-0.5">&#8226;</span>
+                        Day-of cancellations (after dispatch) are not eligible for refund.
+                    </li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="text-base font-semibold text-primary mb-2">8. Account Deletion</h2>
+                <p class="text-gray-300 text-sm leading-relaxed">
+                    You may delete your account at any time from the app settings. All personal data will be permanently removed
+                    within 30 days as per our Privacy Policy. Active subscriptions will be cancelled upon deletion.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="text-base font-semibold text-primary mb-2">9. Limitation of Liability</h2>
+                <p class="text-gray-300 text-sm leading-relaxed">
+                    Taaza is not liable for any indirect, incidental, or consequential damages arising from the use of the app.
+                    Our maximum liability is limited to the amount paid for the specific delivery in question.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="text-base font-semibold text-primary mb-2">10. Changes to Terms</h2>
+                <p class="text-gray-300 text-sm leading-relaxed">
+                    Taaza reserves the right to update these Terms & Conditions at any time. We will notify you of significant changes
+                    via the app or email. Continued use constitutes acceptance of the revised terms.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="text-base font-semibold text-primary mb-2">11. Contact Us</h2>
+                <p class="text-gray-300 text-sm leading-relaxed">
+                    If you have any questions about these terms, please reach out to us at
+                    <a href="mailto:support@taaza.com" class="text-primary hover:underline">support@taaza.com</a>.
+                </p>
             </section>
         </div>
-        <div class="mt-8">
-            <button onclick="window.location.href = '3-Taaza-Login.html';"
-                class="bg-primary text-background-dark font-bold py-3 px-6 rounded-lg shadow hover:bg-primary/90 transition-colors">Back</button>
+
+        <!-- Bottom action -->
+        <div class="mt-5">
+            <a href="3-Taaza-Login.html"
+                class="flex items-center justify-center gap-2 w-full bg-primary text-background-dark font-bold py-3.5 rounded-xl shadow-lg active:scale-[0.98] transition-transform">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Login
+            </a>
         </div>
-    </div>
+    </main>
 </body>
 
 </html>

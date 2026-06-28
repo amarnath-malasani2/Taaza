@@ -56,6 +56,22 @@
     </style>
 </head>
 <body class="bg-gray-900">
+    <!-- Auth Check Script -->
+    <script>
+        // Check if user is authenticated
+        const adminToken = localStorage.getItem('adminToken');
+        if (!adminToken) {
+            window.location.href = 'admin-login.html';
+        }
+
+        // Set auth header for all API calls
+        const currentPort = window.location.port;
+        const API_BASE = currentPort === '3001'
+            ? window.location.origin.replace(':3001', ':8080')
+            : window.location.origin.replace(/:\d+/, ':8080');
+        const AUTH_HEADER = { 'Authorization': `Bearer ${adminToken}` };
+    </script>
+
     <div class="flex h-screen">
         <!-- Sidebar -->
         <div class="w-64 bg-gray-800 shadow-lg">
@@ -70,10 +86,6 @@
                 <a href="#" onclick="showSection('users')" class="sidebar-item flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 transition-colors">
                     <span class="material-symbols-outlined mr-3">people</span>
                     Users
-                </a>
-                <a href="addresses.html" class="sidebar-item flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 transition-colors">
-                    <span class="material-symbols-outlined mr-3">location_on</span>
-                    Addresses
                 </a>
                 <a href="#" onclick="showSection('activity')" class="sidebar-item flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 transition-colors">
                     <span class="material-symbols-outlined mr-3">history</span>
@@ -96,10 +108,17 @@
             <header class="bg-gray-800 shadow-sm border-b border-gray-700 px-6 py-4">
                 <div class="flex justify-between items-center">
                     <h2 id="page-title" class="text-2xl font-semibold text-gray-100">Dashboard</h2>
-                    <button onclick="refreshData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
-                        <span class="material-symbols-outlined mr-2">refresh</span>
-                        Refresh
-                    </button>
+                    <div class="flex items-center gap-4">
+                        <div id="adminInfo" class="text-sm text-gray-300"></div>
+                        <button onclick="refreshData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
+                            <span class="material-symbols-outlined mr-2">refresh</span>
+                            Refresh
+                        </button>
+                        <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 flex items-center">
+                            <span class="material-symbols-outlined mr-2">logout</span>
+                            Logout
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -218,8 +237,6 @@
                         </div>
                     </div>
                 </div>
-
-
 
                 <!-- Milk Management Section -->
                 <div id="milk-section" class="content-section">
@@ -738,7 +755,7 @@
 
     <script src="js/inventory-api.js"></script>
     <script>
-        const API_BASE = '/api/v1';
+        // API_BASE and AUTH_HEADER are already defined in the auth check script above
         let currentPage = 1;
         let productMap = {}; // Store product ID mappings
 
@@ -790,13 +807,48 @@
             }
         }
 
+        // Display admin info
+        function displayAdminInfo() {
+            const adminInfo = JSON.parse(localStorage.getItem('adminInfo') || '{}');
+            const adminInfoDiv = document.getElementById('adminInfo');
+            if (adminInfo.name) {
+                adminInfoDiv.innerHTML = `
+                    <span class="font-medium">${adminInfo.name}</span>
+                    <span class="text-gray-500 text-xs">(${adminInfo.role})</span>
+                `;
+            }
+        }
+
+        // Logout function
+        function logout() {
+            document.getElementById('logoutModal').style.display = 'flex';
+        }
+
+        function cancelLogout() {
+            document.getElementById('logoutModal').style.display = 'none';
+        }
+
+        async function confirmLogout() {
+            document.getElementById('logoutModal').style.display = 'none';
+
+            try {
+                await apiCall('/api/v1/admin/logout', { method: 'POST' });
+            } catch (error) {
+                console.error('Logout error:', error);
+            } finally {
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminInfo');
+                window.location.href = 'admin-login.html';
+            }
+        }
+
         // API Helper
         async function apiCall(endpoint, options = {}) {
             try {
                 const response = await fetch(`${API_BASE}${endpoint}`, {
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer admin-token',
+                        ...AUTH_HEADER,
                         ...options.headers
                     },
                     ...options
@@ -817,7 +869,7 @@
         // Load Dashboard
         async function loadDashboard() {
             // Load stats
-            const stats = await apiCall('/admin/users/stats');
+            const stats = await apiCall('/api/v1/admin/users/stats');
             if (stats && stats.stats) {
                 document.getElementById('total-users').textContent = stats.stats.total_users || 0;
                 document.getElementById('active-users').textContent = stats.stats.active_users || 0;
@@ -825,7 +877,7 @@
             }
 
             // Load recent activity
-            const activities = await apiCall('/admin/activity/recent');
+            const activities = await apiCall('/api/v1/admin/activity/recent');
             displayDashboardActivity(activities || []);
         }
 
@@ -864,7 +916,7 @@
             if (search) params.append('search', search);
             if (status) params.append('status', status);
             
-            const data = await apiCall(`/admin/users?${params}`);
+            const data = await apiCall(`/api/v1/admin/users?${params}`);
             
             if (data && data.users) {
                 displayUsers(data.users);
@@ -915,7 +967,7 @@
 
         // Load Activity
         async function loadActivity() {
-            const activities = await apiCall('/admin/activity/recent');
+            const activities = await apiCall('/api/v1/admin/activity/recent');
             displayActivity(activities || []);
         }
 
@@ -945,8 +997,6 @@
                 </div>
             `;
         }
-
-
 
         // Milk Management Functions
         let isFullscreen = false;
@@ -1593,9 +1643,6 @@
                 if (eveningBookedEl) eveningBookedEl.textContent = `${data.evening.booked}L`;
                 if (eveningRemainingEl) eveningRemainingEl.textContent = `${eveningRemaining}L`;
                 
-                console.log(`📊 ${product.toUpperCase()} Stock Update:`);
-                console.log(`  Morning: ${data.morning.stock}L stock, ${data.morning.booked}L booked, ${morningRemaining}L available`);
-                console.log(`  Evening: ${data.evening.stock}L stock, ${data.evening.booked}L booked, ${eveningRemaining}L available`);
             });
             
             // Update individual milk type summaries for morning and evening
@@ -1667,9 +1714,9 @@
 
         // View User Details
         async function viewUser(userId) {
-            const user = await apiCall(`/admin/users/${userId}`);
-            const activity = await apiCall(`/admin/users/${userId}/activity`);
-            const addresses = await apiCall(`/admin/users/${userId}/addresses`);
+            const user = await apiCall(`/api/v1/admin/users/${userId}`);
+            const activity = await apiCall(`/api/v1/admin/users/${userId}/activity`);
+            const addresses = await apiCall(`/api/v1/admin/users/${userId}/addresses`);
             
             if (user && user.user) {
                 const u = user.user;
@@ -3184,15 +3231,13 @@
         // Load stock data from API
         async function loadStockFromAPI() {
             try {
-                console.log('🔄 Loading stock data from API...');
+                // Loading stock data from API
                 
                 const [productsResponse, stockResponse] = await Promise.all([
                     inventoryAPI.getProducts(),
                     inventoryAPI.getStock()
                 ]);
                 
-                console.log('📊 Products response:', productsResponse);
-                console.log('📊 Stock response:', stockResponse);
                 
                 // Build product mapping
                 if (productsResponse && productsResponse.products) {
@@ -3219,8 +3264,6 @@
                     });
                 }
                 
-                console.log('📊 Final stock data:', stockData);
-                console.log('📊 Product mapping:', productMap);
                 updateStockDisplay();
                 showToast('Inventory data loaded successfully', 'success');
             } catch (error) {
@@ -3246,22 +3289,18 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async function() {
+            // Display admin info in header
+            displayAdminInfo();
+
             // Load initial data from API
             await loadStockFromAPI();
-            
-            // Check if we need sample subscription data
-            const hasSubscriptionData = localStorage.getItem('userSubscriptions');
-            if (!hasSubscriptionData) {
-                generateSampleSubscriptionData();
-            }
-            
+
             // Don't sync with localStorage - use API as single source of truth
             
             // Check if there's a saved state
             const savedSection = localStorage.getItem('adminActiveSection') || 'dashboard';
             const savedMilkTab = localStorage.getItem('adminActiveMilkTab') || 'inventory';
             
-            console.log('🔄 Restoring state - Section:', savedSection, 'MilkTab:', savedMilkTab);
             
             // Restore the saved section
             showSection(savedSection);
@@ -3296,5 +3335,28 @@
             }
         });
     </script>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" style="display: none;">
+        <div class="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4 transform transition-all">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-red-600 text-2xl">logout</span>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900">Confirm Logout</h3>
+                    <p class="text-sm text-gray-500">Are you sure you want to logout?</p>
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="cancelLogout()" class="flex-1 px-4 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium transition-colors">
+                    Cancel
+                </button>
+                <button onclick="confirmLogout()" class="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors">
+                    Yes, Logout
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

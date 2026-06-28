@@ -63,6 +63,20 @@ func UpdatePersonalInfo(c *gin.Context) {
 		return
 	}
 
+	// Validate mobile number format if provided
+	if req.Mobile != "" {
+		req.Mobile = strings.TrimSpace(req.Mobile)
+		if len(req.Mobile) != 10 || req.Mobile[0] < '6' || req.Mobile[0] > '9' {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Mobile number must be 10 digits starting with 6-9"})
+			return
+		}
+	}
+
+	// Sanitize address
+	if req.Address != "" {
+		req.Address = strings.TrimSpace(req.Address)
+	}
+
 	// Check if mobile number is already used by another user
 	if req.Mobile != "" {
 		var existingUserID int
@@ -162,8 +176,8 @@ func UpdateProfile(c *gin.Context) {
 func CompleteUserProfile(c *gin.Context) {
 	type CompleteUserProfileRequest struct {
 		Email  string `json:"email" validate:"required,email"`
-		Name   string `json:"name" validate:"required,min=2"`
-		Mobile string `json:"mobile" validate:"required,len=10"`
+		Name   string `json:"name" validate:"required,min=2,max=50"`
+		Mobile string `json:"mobile" validate:"required,len=10,numeric"`
 	}
 
 	var req CompleteUserProfileRequest
@@ -174,6 +188,16 @@ func CompleteUserProfile(c *gin.Context) {
 
 	if err := validate.Struct(req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Sanitize name (trim whitespace, remove extra spaces)
+	req.Name = strings.TrimSpace(req.Name)
+	req.Name = strings.Join(strings.Fields(req.Name), " ")
+
+	// Validate mobile number starts with 6-9
+	if len(req.Mobile) != 10 || req.Mobile[0] < '6' || req.Mobile[0] > '9' {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Mobile number must be 10 digits starting with 6-9"})
 		return
 	}
 

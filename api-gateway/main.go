@@ -66,8 +66,16 @@ func main() {
 		// Admin routes
 		admin := v1.Group("/admin")
 		{
+			// Public admin routes
+			admin.POST("/auth/login", handlers.ProxyToAdminService)
+
+			// Protected admin routes
 			admin.Any("/users/*path", handlers.ProxyToAdminService)
 			admin.Any("/users", handlers.ProxyToAdminService)
+			admin.GET("/me", handlers.ProxyToAdminService)
+			admin.POST("/logout", handlers.ProxyToAdminService)
+			admin.GET("/activity/recent", handlers.ProxyToAdminService)
+			admin.POST("/sessions/:id/revoke", handlers.ProxyToAdminService)
 		}
 
 		// Inventory routes

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Personal Information - Tazza</title>
+    <title>Personal Information - Taaza</title>
     <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect" />
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700;900&amp;display=swap"
         rel="stylesheet" />
@@ -12,8 +12,8 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <style type="text/tailwindcss">
         :root {
-            --golden-yellow: #FFD700;
-            --dark-blue: #0C2D57;
+            --golden-yellow: #F59E0B;
+            --dark-blue: #1E293B;
         }
 
         /* Smooth transitions */
@@ -26,7 +26,7 @@
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#0C2D57",
+                        "primary": "#1E293B",
                         "background-light": "#f6f7f8",
                         "content-light": "#ffffff",
                         "text-light": "#111827",
@@ -54,15 +54,15 @@
 
         /* Custom styles with your colors */
         .golden-bg {
-            background-color: #FFD700;
+            background-color: #F59E0B;
         }
 
         .dark-blue-text {
-            color: #0C2D57;
+            color: #1E293B;
         }
 
         .dark-blue-bg {
-            background-color: #0C2D57;
+            background-color: #1E293B;
         }
 
         .input-field {
@@ -72,7 +72,7 @@
 
         .input-field:focus {
             background-color: #ffffff;
-            border-color: #FFD700;
+            border-color: #F59E0B;
         }
 
         /* Mobile optimizations */
@@ -119,7 +119,7 @@
         
         /* High contrast focus indicators */
         .input-field:focus, button:focus, select:focus {
-            outline: 2px solid #0C2D57;
+            outline: 2px solid #1E293B;
             outline-offset: 2px;
         }
     </style>
@@ -257,17 +257,6 @@
 
     <script src="../js/session.js"></script>
     <script>
-        // Debug helper
-        function debugProfile() {
-            console.log('=== DEBUG PROFILE INFO ===');
-            console.log('Auth Token:', localStorage.getItem('authToken') ? 'Exists' : 'Missing');
-            console.log('User Name:', localStorage.getItem('userName'));
-            console.log('User Email:', localStorage.getItem('userEmail'));
-            console.log('Form Name:', document.getElementById('full-name').value);
-            console.log('Form Email:', document.getElementById('email').value);
-            console.log('==========================');
-        }
-        window.debugProfile = debugProfile;
 
         // Input sanitization function
         function sanitizeInput(input) {
@@ -318,73 +307,49 @@
 
         // Populate form with user data
         function populateForm(user) {
-            console.log('=== POPULATE FORM DEBUG ===');
-            console.log('Raw user data received:', user);
-            console.log('Gender value:', user.gender, 'Type:', typeof user.gender);
-            console.log('DOB value:', user.date_of_birth, 'Type:', typeof user.date_of_birth);
-            
             document.getElementById('full-name').value = user.name || '';
             document.getElementById('email').value = user.email || '';
             document.getElementById('phone').value = user.mobile || '';
-            
-            // Handle gender - check for null/undefined
-            const genderValue = user.gender || '';
-            console.log('Setting gender to:', genderValue);
-            document.getElementById('gender').value = genderValue;
-            console.log('Gender field after setting:', document.getElementById('gender').value);
-            
+
+            // Handle gender
+            document.getElementById('gender').value = user.gender || '';
+
             // Handle date formatting
             if (user.date_of_birth && user.date_of_birth !== '') {
-                console.log('Processing DOB:', user.date_of_birth);
                 const date = new Date(user.date_of_birth);
                 if (!isNaN(date.getTime())) {
-                    const formattedDate = date.toISOString().split('T')[0];
-                    console.log('Setting DOB to:', formattedDate);
-                    document.getElementById('dob').value = formattedDate;
+                    document.getElementById('dob').value = date.toISOString().split('T')[0];
                 } else {
-                    console.log('Invalid date, clearing DOB field');
                     document.getElementById('dob').value = '';
                 }
             } else {
-                console.log('No DOB data, clearing field');
                 document.getElementById('dob').value = '';
             }
-            
+
             // Update avatar
             if (user.name) {
                 document.getElementById('userAvatar').textContent = user.name.charAt(0).toUpperCase();
             }
-            
+
             // Update localStorage
             localStorage.setItem('userName', user.name || '');
             localStorage.setItem('userEmail', user.email || '');
             localStorage.setItem('userMobile', user.mobile || '');
-            
-            console.log('=== FORM FIELDS AFTER POPULATE ===');
-            console.log('Name field:', document.getElementById('full-name').value);
-            console.log('Gender field:', document.getElementById('gender').value);
-            console.log('DOB field:', document.getElementById('dob').value);
-            console.log('===============================');
         }
 
-        // Load from localStorage fallback - preserve existing form values
+        // Load from localStorage fallback
         function loadFromLocalStorage() {
-            console.log('Loading from localStorage...');
             const userName = localStorage.getItem('userName') || '';
             const userEmail = localStorage.getItem('userEmail') || '';
             const userMobile = localStorage.getItem('userMobile') || '';
-            
-            // Only update basic fields, preserve gender and DOB if already set
+
             if (userName) document.getElementById('full-name').value = userName;
             if (userEmail) document.getElementById('email').value = userEmail;
             if (userMobile) document.getElementById('phone').value = userMobile;
-            
-            // Update avatar
+
             if (userName) {
                 document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
             }
-            
-            console.log('Loaded basic info from localStorage, preserved gender/DOB');
         }
 
         // Simple user profile loading - always fetch fresh data
@@ -422,23 +387,15 @@
                 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('=== API RESPONSE DEBUG ===');
-                    console.log('Full API response:', data);
-                    console.log('User object:', data.user);
                     if (data.user) {
-                        console.log('Gender from API:', data.user.gender);
-                        console.log('DOB from API:', data.user.date_of_birth);
                         populateForm(data.user);
                     } else {
-                        console.log('No user data in response, using localStorage');
                         loadFromLocalStorage();
                     }
                 } else {
-                    console.warn('API call failed, using localStorage fallback');
                     loadFromLocalStorage();
                 }
             } catch (error) {
-                console.warn('Network error, using localStorage fallback:', error.message);
                 loadFromLocalStorage();
             }
         }
@@ -513,11 +470,6 @@
             const gender = document.getElementById('gender').value;
             const dob = document.getElementById('dob').value;
             
-            console.log('Form values before submit:', {name, gender, dob});
-            
-            // Clear previous errors
-            document.getElementById('name-error').classList.add('hidden');
-
             // Clear previous errors
             document.getElementById('name-error').classList.add('hidden');
             document.getElementById('gender-error').classList.add('hidden');
@@ -567,12 +519,10 @@
 
                     const updateData = {
                         name: sanitizeInput(name),
-                        gender: gender ? sanitizeInput(gender) : null,
-                        date_of_birth: dob ? sanitizeInput(dob) : null
+                        gender: gender ? sanitizeInput(gender) : "",
+                        date_of_birth: dob ? sanitizeInput(dob) : ""
                     };
-                    
-                    console.log('Sending update data:', updateData);
-                    
+
                     const response = await fetch('/api/v1/users/update-profile', {
                         method: 'PUT',
                         headers: {
@@ -594,8 +544,7 @@
                     }
 
                     const responseData = await response.json();
-                    console.log('Update response:', responseData);
-                    
+
                     if (response.ok) {
                         // Update localStorage with current form values
                         localStorage.setItem('userName', name);

@@ -56,8 +56,6 @@ func GetProfileSecure(c *gin.Context) {
 		return
 	}
 	
-	logrus.WithField("user_id", userID).Info("GetProfile called")
-
 	// Use sql.NullString for nullable fields
 	var (
 		id                 int
@@ -122,8 +120,7 @@ func GetProfileSecure(c *gin.Context) {
 	c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
 	c.Header("Pragma", "no-cache")
 	c.Header("Expires", "0")
-	
-	logrus.WithFields(logrus.Fields{"user_id": user.ID, "name_length": len(user.Name), "gender": user.Gender, "dob": user.DateOfBirth}).Info("Successfully retrieved profile")
+
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
@@ -170,13 +167,6 @@ func UpdateUserProfileSecure(c *gin.Context) {
 		return
 	}
 
-	logrus.WithFields(logrus.Fields{
-		"user_id": userID,
-		"name_length": len(req.Name),
-		"has_gender": req.Gender != "",
-		"has_dob": req.DateOfBirth != "",
-	}).Info("Updating user profile")
-
 	// Handle null values properly for optional fields
 	var dateOfBirth interface{}
 	if req.DateOfBirth == "" || req.DateOfBirth == "null" {
@@ -184,24 +174,17 @@ func UpdateUserProfileSecure(c *gin.Context) {
 	} else {
 		dateOfBirth = req.DateOfBirth
 	}
-	
+
 	var gender interface{}
 	if req.Gender == "" || req.Gender == "null" {
 		gender = nil
 	} else {
 		gender = req.Gender
 	}
-	
-	logrus.WithFields(logrus.Fields{
-		"user_id": userID,
-		"final_gender": gender,
-		"final_dob": dateOfBirth,
-	}).Info("Final values before database update")
-	
-	// Optimized update query
-	query := `UPDATE users SET name = $1, gender = $2, date_of_birth = $3, updated_at = NOW() 
+
+	query := `UPDATE users SET name = $1, gender = $2, date_of_birth = $3, updated_at = NOW()
 			 WHERE id = $4`
-	
+
 	_, err := database.DB.Exec(query, req.Name, gender, dateOfBirth, userID)
 	if err != nil {
 		logrus.WithError(err).Error("Database error during user profile update")
@@ -212,5 +195,29 @@ func UpdateUserProfileSecure(c *gin.Context) {
 	// Log activity
 	utils.LogActivity(userID, "personal_info_update", "User updated personal information", c.ClientIP())
 
-	c.JSON(http.StatusOK, gin.H{"message": "Profile updated successfully"})
+	// Return updated profile data
+	var updatedUser struct {
+		ID          int    `json:"id"`
+		Name        string `json:"name"`
+		Email       string `json:"email"`
+		Mobile      string `json:"mobile"`
+		Gender      string `json:"gender"`
+		DateOfBirth string `json:"date_of_birth"`
+	}
+
+	var genderVal sql.NullString
+	var dobVal sql.NullString
+
+	database.DB.QueryRow(
+		`SELECT id, name, email, COALESCE(mobile, '') as mobile, gender, date_of_birth FROM users WHERE id = $1`, userID,
+	).Scan(&updatedUser.ID, &updatedUser.Name, &updatedUser.Email, &updatedUser.Mobile, &genderVal, &dobVal)
+
+	if genderVal.Valid {
+		updatedUser.Gender = genderVal.String
+	}
+	if dobVal.Valid {
+		updatedUser.DateOfBirth = dobVal.String
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Profile updated successfully", "user": updatedUser})
 }

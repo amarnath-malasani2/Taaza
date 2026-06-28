@@ -14,7 +14,7 @@
     <style>
         body {
             font-family: 'Work Sans', 'Noto Sans', sans-serif;
-            background-color: #0C2D57;
+            background-color: #1E293B;
             color: #fff;
             min-height: 100vh;
         }
@@ -62,12 +62,12 @@
         }
 
         .btn-glow {
-            box-shadow: 0 4px 15px 0 rgba(255, 215, 0, 0.3);
+            box-shadow: 0 4px 15px 0 rgba(245, 158, 11, 0.3);
             transition: all 0.3s ease;
         }
 
         .btn-glow:hover {
-            box-shadow: 0 6px 20px 0 rgba(255, 215, 0, 0.5);
+            box-shadow: 0 6px 20px 0 rgba(245, 158, 11, 0.5);
             transform: translateY(-2px);
         }
         
@@ -126,7 +126,7 @@
         
         /* Focus indicators */
         .btn-primary:focus-visible {
-            outline: 2px solid #FFD700;
+            outline: 2px solid #F59E0B;
             outline-offset: 2px;
         }
         
@@ -161,7 +161,7 @@
     <div class="flex flex-col h-screen justify-between p-6 relative z-10 font-display">
         <div class="flex-grow flex flex-col items-center justify-center text-center">
             <div class="mb-8">
-                <svg class="w-24 h-24 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                <svg class="w-24 h-24 text-[#F59E0B]" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -169,15 +169,15 @@
             </div>
             <h1 class="text-3xl font-bold text-white mb-4">Subscription Canceled</h1>
             <p class="text-lg font-bold text-white mb-2">Your subscription has been successfully canceled.</p>
-            <p id="canceled-plan" class="text-[#FFD700] mb-2 font-medium">Loading...</p>
+            <p id="canceled-plan" class="text-[#F59E0B] mb-2 font-medium">Loading...</p>
             <p class="text-[#d1d5db]">Your deliveries will stop from <span id="stop-date" class="font-bold text-white">tomorrow</span>.</p>
             <p class="text-[#d1d5db] mt-1">Feel free to resubscribe anytime.</p>
 
-            <div class="mt-8 p-4 bg-[#0C2D57] border border-[#FFD700] rounded-lg max-w-md">
-                <h2 class="text-xl font-bold text-[#FFD700] mb-2">What happens next?</h2>
+            <div class="mt-8 p-4 bg-[#1E293B] border border-[#F59E0B] rounded-lg max-w-md">
+                <h2 class="text-xl font-bold text-[#F59E0B] mb-2">What happens next?</h2>
                 <ul class="text-[#d1d5db] text-left space-y-2">
                     <li class="flex items-start">
-                        <svg class="w-5 h-5 text-[#FFD700] mt-0.5 mr-2 flex-shrink-0" fill="currentColor"
+                        <svg class="w-5 h-5 text-[#F59E0B] mt-0.5 mr-2 flex-shrink-0" fill="currentColor"
                             viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd"
                                 d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -186,7 +186,7 @@
                         <span>Your final delivery will be on <span id="final-delivery-date">today</span></span>
                     </li>
                     <li class="flex items-start">
-                        <svg class="w-5 h-5 text-[#FFD700] mt-0.5 mr-2 flex-shrink-0" fill="currentColor"
+                        <svg class="w-5 h-5 text-[#F59E0B] mt-0.5 mr-2 flex-shrink-0" fill="currentColor"
                             viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd"
                                 d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -195,7 +195,7 @@
                         <span>No further charges will be applied to your account</span>
                     </li>
                     <li class="flex items-start">
-                        <svg class="w-5 h-5 text-[#FFD700] mt-0.5 mr-2 flex-shrink-0" fill="currentColor"
+                        <svg class="w-5 h-5 text-[#F59E0B] mt-0.5 mr-2 flex-shrink-0" fill="currentColor"
                             viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd"
                                 d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -208,7 +208,7 @@
         </div>
         <div class="w-full mt-8">
             <button onclick="returnToHome()"
-                class="btn-primary w-full bg-[#FFD700] text-[#0C2D57] shadow-lg hover:bg-yellow-500 transition duration-300" aria-label="Return to homepage">
+                class="btn-primary w-full bg-[#F59E0B] text-[#1E293B] shadow-lg hover:bg-amber-500 transition duration-300" aria-label="Return to homepage">
                 Return to Home
             </button>
         </div>

@@ -3,46 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your OTP Code</title>
+    <title>Your Verification Code - Taaza</title>
+    <!--[if mso]>
+    <noscript>
+        <xml>
+            <o:OfficeDocumentSettings>
+                <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+        </xml>
+    </noscript>
+    <![endif]-->
     <style>
-        body { font-family: 'Space Grotesk', Arial, sans-serif; margin: 0; padding: 0; background: linear-gradient(135deg, #0C2D57 0%, #1E3A6F 100%); }
-        .container { max-width: 600px; margin: 0 auto; background-color: white; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #0C2D57 0%, #1E3A6F 100%); padding: 30px 20px; text-align: center; }
-        .header h1 { color: #FFD700; margin: 0; font-size: 36px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
-        .header p { color: #E0E0E0; margin: 8px 0 0 0; font-size: 16px; }
-        .content { padding: 40px 30px; }
-        .otp-box { background: linear-gradient(135deg, #FFD700 0%, #FBC02D 100%); border: none; padding: 25px; text-align: center; margin: 25px 0; border-radius: 12px; box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3); }
-        .otp-code { font-size: 36px; font-weight: bold; color: #0C2D57; letter-spacing: 8px; margin: 10px 0; font-family: 'Space Grotesk', monospace; }
-        .footer { background-color: #f8f9fa; padding: 25px; text-align: center; color: #666; font-size: 14px; }
-        .button { display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #FFD700 0%, #FBC02D 100%); color: #0C2D57; text-decoration: none; border-radius: 8px; margin: 15px 0; font-weight: bold; }
-        h2 { color: #0C2D57; font-size: 24px; margin-bottom: 20px; }
-        p { color: #333; line-height: 1.6; margin-bottom: 15px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f4f4f5;
+            padding: 20px 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+        .wrapper {
+            max-width: 420px;
+            margin: 0 auto;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        }
+        .header {
+            background: linear-gradient(135deg, #1E293B 0%, #2d3f5e 100%);
+            padding: 32px 24px;
+            text-align: center;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #F59E0B;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 4px;
+        }
+        .tagline {
+            color: #94a3b8;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+        .body {
+            padding: 32px 24px;
+        }
+        .greeting {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 8px;
+        }
+        .message {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        .otp-box {
+            background: #FFFBEB;
+            border: 2px dashed #F59E0B;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .otp-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #92400e;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .otp-code {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1E293B;
+            letter-spacing: 6px;
+            font-family: 'Courier New', monospace;
+        }
+        .otp-expiry {
+            font-size: 12px;
+            color: #92400e;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        .divider {
+            height: 1px;
+            background: #f1f5f9;
+            margin: 24px 0;
+        }
+        .security-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .security-icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .security-text {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+        .footer {
+            padding: 20px 24px;
+            text-align: center;
+            border-top: 1px solid #f1f5f9;
+        }
+        .footer-text {
+            font-size: 11px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+        .footer-brand {
+            font-weight: 600;
+            color: #64748b;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Taaza</h1>
-            <p>Straight from the Farm to Your Door</p>
-        </div>
-        
-        <div class="content">
-            <h2>Your OTP Code</h2>
-            <p>Hello {{.Name}},</p>
-            <p>Use the following OTP code to verify your email address:</p>
-            
-            <div class="otp-box">
-                <div class="otp-code">{{.OTP}}</div>
-                <p style="margin: 5px 0; color: #0C2D57; font-weight: 500;">This code will expire in 10 minutes</p>
+    <div class="wrapper">
+        <div class="card">
+            <!-- Header -->
+            <div class="header">
+                <div class="logo">Taaza</div>
+                <div class="tagline">Straight from the Farm to Your Door</div>
             </div>
-            
-            <p>If you didn't request this code, please ignore this email.</p>
-            <p>For security reasons, never share this code with anyone.</p>
-        </div>
-        
-        <div class="footer">
-            <p>&copy; 2024 Taaza. All rights reserved.</p>
-            <p>Fresh groceries delivered to your doorstep</p>
+
+            <!-- Body -->
+            <div class="body">
+                <p class="greeting">Hi {{.Name}},</p>
+                <p class="message">Use this code to verify your email address and access your Taaza account.</p>
+
+                <!-- OTP Box -->
+                <div class="otp-box">
+                    <div class="otp-label">Verification Code</div>
+                    <div class="otp-code">{{.OTP}}</div>
+                    <div class="otp-expiry">Expires in 2 minutes</div>
+                </div>
+
+                <!-- Security Note -->
+                <div class="security-note">
+                    <svg class="security-icon" fill="none" stroke="#64748b" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    <span class="security-text">
+                        If you didn't request this code, you can safely ignore this email. Never share this code with anyone.
+                    </span>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p class="footer-text">
+                    <span class="footer-brand">Taaza</span> &mdash; Fresh milk & farm produce delivered daily.<br>
+                    &copy; 2026 Taaza. All rights reserved.
+                </p>
+            </div>
         </div>
     </div>
 </body>
