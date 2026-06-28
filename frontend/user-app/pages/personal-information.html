@@ -35,6 +35,7 @@
             min-height: 100vh;
             min-height: 100dvh;
             background: #f8fafc;
+            overflow-x: hidden;
         }
 
         .header-gradient {
@@ -183,13 +184,6 @@
             letter-spacing: 0.03em;
         }
 
-        .progress-ring {
-            transform: rotate(-90deg);
-        }
-
-        .progress-ring-circle {
-            transition: stroke-dashoffset 0.6s ease;
-        }
 
         .section-divider {
             height: 1px;
@@ -227,7 +221,7 @@
 </head>
 
 <body class="font-display">
-    <div class="relative flex min-h-screen w-full flex-col max-w-lg mx-auto">
+    <div class="relative flex min-h-screen w-full flex-col max-w-lg mx-auto overflow-x-hidden">
 
         <!-- Header -->
         <header class="header-gradient text-white sticky top-0 z-10">
@@ -243,24 +237,14 @@
                 </div>
             </div>
 
-            <!-- Avatar + Completion Ring -->
+            <!-- Avatar -->
             <div class="flex flex-col items-center pb-6 pt-1">
-                <div class="relative animate-scale-in">
-                    <svg class="progress-ring absolute -inset-2" width="88" height="88" viewBox="0 0 88 88">
-                        <circle cx="44" cy="44" r="40" stroke="rgba(255,255,255,0.15)" stroke-width="3" fill="none"/>
-                        <circle id="progress-circle" class="progress-ring-circle" cx="44" cy="44" r="40"
-                            stroke="#F59E0B" stroke-width="3" fill="none"
-                            stroke-linecap="round"
-                            stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
-                    </svg>
-                    <div class="avatar-ring rounded-full">
-                        <div class="w-[68px] h-[68px] rounded-full bg-dark flex items-center justify-center text-primary font-bold text-2xl border-2 border-dark"
-                            id="userAvatar">
-                            U
-                        </div>
+                <div class="animate-scale-in avatar-ring rounded-full avatar-glow">
+                    <div class="w-[68px] h-[68px] rounded-full bg-dark flex items-center justify-center text-primary font-bold text-2xl border-2 border-dark"
+                        id="userAvatar">
+                        U
                     </div>
                 </div>
-                <p class="text-white/50 text-xs mt-3 font-medium" id="completion-text">Profile completion</p>
             </div>
         </header>
 
@@ -285,11 +269,7 @@
             <div id="form-section" class="mx-4 mb-8">
                 <!-- Editable Fields Card -->
                 <div class="bg-white rounded-2xl card-shadow overflow-hidden animate-slide-up">
-                    <!-- Editable section header -->
-                    <div class="px-5 pt-5 pb-3 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-primary text-[18px]">edit</span>
-                        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Editable</span>
-                    </div>
+                    <div class="pt-3"></div>
 
                     <form id="personal-info-form" autocomplete="off" novalidate class="px-5 pb-5">
                         <!-- Full Name -->
@@ -440,35 +420,6 @@
             setTimeout(() => overlay.classList.add('hidden'), 1500);
         }
 
-        function updateCompletionRing() {
-            const name = document.getElementById('full-name').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const gender = document.getElementById('gender').value;
-            const dob = document.getElementById('dob').value;
-
-            let filled = 0;
-            const total = 5;
-            if (name) filled++;
-            if (email) filled++;
-            if (phone) filled++;
-            if (gender) filled++;
-            if (dob) filled++;
-
-            const percent = filled / total;
-            const circumference = 251.2;
-            const offset = circumference * (1 - percent);
-
-            const circle = document.getElementById('progress-circle');
-            if (circle) {
-                circle.style.strokeDashoffset = offset;
-            }
-
-            const text = document.getElementById('completion-text');
-            if (text) {
-                text.textContent = `${Math.round(percent * 100)}% complete`;
-            }
-        }
 
         function populateForm(user) {
             document.getElementById('full-name').value = user.name || '';
@@ -495,7 +446,6 @@
             localStorage.setItem('userEmail', user.email || '');
             localStorage.setItem('userMobile', user.mobile || '');
 
-            updateCompletionRing();
         }
 
         function loadFromLocalStorage() {
@@ -511,7 +461,6 @@
                 document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
             }
 
-            updateCompletionRing();
         }
 
         async function loadUserProfile() {
@@ -570,11 +519,6 @@
             await loadUserProfile();
             hideLoading();
 
-            // Update ring on input changes
-            ['full-name', 'gender', 'dob'].forEach(id => {
-                document.getElementById(id).addEventListener('change', updateCompletionRing);
-                document.getElementById(id).addEventListener('input', updateCompletionRing);
-            });
         });
 
         const form = document.getElementById('personal-info-form');
@@ -652,8 +596,7 @@
 
                     if (response.ok) {
                         localStorage.setItem('userName', name);
-                        updateCompletionRing();
-                        showSuccessOverlay();
+                                    showSuccessOverlay();
                     } else {
                         throw new Error(responseData.error || 'Failed to update information');
                     }
