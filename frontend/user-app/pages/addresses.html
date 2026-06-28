@@ -10,7 +10,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
         rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400" rel="stylesheet" />
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTBpRefq3kQWU79YiRZOeGb7jamVPHHnw&libraries=places"></script>
+    <!-- Leaflet.js - Free & Open Source Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script>
         tailwind.config = {
@@ -116,19 +118,16 @@
             animation: slideUp 0.3s ease-out;
         }
 
-        #google-map {
-            height: 250px;
+        #leaflet-map {
+            height: 280px;
             width: 100%;
             border-radius: 12px;
             overflow: hidden;
+            z-index: 1;
         }
 
-        .pac-container {
-            z-index: 10000 !important;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-            border: none;
-            margin-top: 4px;
+        .leaflet-control-attribution {
+            font-size: 9px !important;
         }
 
         .toast-msg {
@@ -259,7 +258,7 @@
                     </div>
                 </div>
 
-                <div id="google-map"></div>
+                <div id="leaflet-map"></div>
 
                 <button type="button" onclick="confirmLocation()"
                     class="add-btn w-full text-dark font-bold rounded-xl py-3.5 mt-4 text-[15px]">
@@ -337,7 +336,6 @@
         let addresses = [];
         let addressAPI = new AddressAPI();
         let map, marker, selectedLocation = null;
-        let autocomplete;
         let deleteTargetId = null;
 
         function setLabel(label) {
@@ -463,78 +461,84 @@
 
         function openMapModal() {
             document.getElementById('map-modal').classList.remove('hidden');
-            initMap();
+            setTimeout(() => initMap(), 100);
         }
 
         function closeMapModal() {
             document.getElementById('map-modal').classList.add('hidden');
-            map = null;
+            if (map) {
+                map.remove();
+                map = null;
+            }
             marker = null;
         }
 
         function initAutocomplete() {
+            // Using Nominatim search on blur for address suggestions (no API key needed)
             const addressInput = document.getElementById('address-line');
-            if (autocomplete) {
-                google.maps.event.clearInstanceListeners(addressInput);
-            }
+            let searchTimeout;
 
-            autocomplete = new google.maps.places.Autocomplete(addressInput, { types: ['address'] });
+            addressInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                const query = this.value.trim();
+                if (query.length < 5) return;
 
-            autocomplete.addListener('place_changed', function () {
-                const place = autocomplete.getPlace();
-                if (!place.geometry) return;
+                searchTimeout = setTimeout(async () => {
+                    try {
+                        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=in&limit=1`);
+                        const data = await res.json();
+                        if (data.length > 0) {
+                            const place = data[0];
+                            const lat = parseFloat(place.lat);
+                            const lng = parseFloat(place.lon);
+                            document.getElementById('address-lat').value = lat;
+                            document.getElementById('address-lng').value = lng;
+                            selectedLocation = { lat, lng };
 
-                let city = '', zipCode = '', country = '';
-
-                for (const component of place.address_components) {
-                    const type = component.types[0];
-                    if (type === 'locality') city = component.long_name;
-                    if (type === 'postal_code') zipCode = component.long_name;
-                    if (type === 'country') country = component.long_name;
-                }
-
-                if (city) document.getElementById('address-city').value = city;
-                if (zipCode) document.getElementById('address-zip').value = zipCode;
-                if (country) document.getElementById('address-country').value = country;
-
-                const lat = place.geometry.location.lat();
-                const lng = place.geometry.location.lng();
-                document.getElementById('address-lat').value = lat;
-                document.getElementById('address-lng').value = lng;
-                document.getElementById('coordinates-display').textContent = 'Location set';
-                selectedLocation = { lat, lng };
+                            // Try to extract city from display_name
+                            const parts = place.display_name.split(',').map(s => s.trim());
+                            if (parts.length >= 3) {
+                                document.getElementById('address-city').value = parts[parts.length - 4] || parts[1] || '';
+                            }
+                        }
+                    } catch (e) {}
+                }, 800);
             });
         }
 
         function initMap() {
-            const defaultCenter = { lat: 12.9716, lng: 77.5946 };
-            map = new google.maps.Map(document.getElementById('google-map'), {
-                zoom: 13,
-                center: selectedLocation || defaultCenter,
-                mapTypeControl: false,
-                streetViewControl: false,
-                fullscreenControl: false,
+            const defaultCenter = selectedLocation || { lat: 12.9716, lng: 77.5946 };
+
+            map = L.map('leaflet-map', {
                 zoomControl: true,
-                gestureHandling: 'greedy'
-            });
+                attributionControl: true
+            }).setView([defaultCenter.lat, defaultCenter.lng], 14);
 
-            if (selectedLocation) setMarker(selectedLocation);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap',
+                maxZoom: 19
+            }).addTo(map);
 
-            map.addListener('click', function (event) {
-                setMarker(event.latLng);
-                reverseGeocode(event.latLng.lat(), event.latLng.lng());
+            if (selectedLocation) {
+                setMarker(selectedLocation.lat, selectedLocation.lng);
+            }
+
+            map.on('click', function(e) {
+                setMarker(e.latlng.lat, e.latlng.lng);
+                reverseGeocode(e.latlng.lat, e.latlng.lng);
             });
         }
 
-        function setMarker(location) {
-            if (marker) marker.setMap(null);
-            marker = new google.maps.Marker({ position: location, map: map, draggable: true });
-            marker.addListener('dragend', function () {
-                const pos = marker.getPosition();
-                selectedLocation = { lat: pos.lat(), lng: pos.lng() };
-                reverseGeocode(pos.lat(), pos.lng());
+        function setMarker(lat, lng) {
+            if (marker) map.removeLayer(marker);
+            marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+            selectedLocation = { lat, lng };
+
+            marker.on('dragend', function(e) {
+                const pos = e.target.getLatLng();
+                selectedLocation = { lat: pos.lat, lng: pos.lng };
+                reverseGeocode(pos.lat, pos.lng);
             });
-            selectedLocation = { lat: location.lat(), lng: location.lng() };
         }
 
         function locateUser() {
@@ -546,8 +550,13 @@
 
             navigator.geolocation.getCurrentPosition(
                 function(position) {
-                    const loc = { lat: position.coords.latitude, lng: position.coords.longitude };
-                    if (map) { map.setCenter(loc); map.setZoom(16); setMarker(loc); reverseGeocode(loc.lat, loc.lng); }
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    if (map) {
+                        map.setView([lat, lng], 17);
+                        setMarker(lat, lng);
+                        reverseGeocode(lat, lng);
+                    }
                     showToast('Location found');
                     document.getElementById('locate-btn').classList.remove('hidden');
                     document.getElementById('locate-loading').classList.add('hidden');
@@ -561,28 +570,27 @@
             );
         }
 
-        function reverseGeocode(lat, lng) {
-            const geocoder = new google.maps.Geocoder();
-            geocoder.geocode({ location: { lat, lng } }, function (results, status) {
-                if (status === 'OK' && results[0]) {
-                    const address = results[0];
-                    let city = '', zipCode = '', country = '', route = '';
+        // Reverse geocode using Nominatim (free, open-source)
+        async function reverseGeocode(lat, lng) {
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+                const data = await res.json();
 
-                    for (const c of address.address_components) {
-                        const type = c.types[0];
-                        if (type === 'route') route = c.long_name;
-                        if (type === 'locality') city = c.long_name;
-                        if (type === 'postal_code') zipCode = c.long_name;
-                        if (type === 'country') country = c.long_name;
-                    }
+                if (data && data.address) {
+                    const addr = data.address;
+                    const road = addr.road || addr.neighbourhood || addr.suburb || '';
+                    const city = addr.city || addr.town || addr.village || addr.state_district || '';
+                    const zipCode = addr.postcode || '';
+                    const country = addr.country || '';
 
-                    if (route) document.getElementById('address-line').value = route;
-                    else document.getElementById('address-line').value = address.formatted_address.split(',')[0];
+                    if (road) document.getElementById('address-line').value = road;
                     if (city) document.getElementById('address-city').value = city;
                     if (zipCode) document.getElementById('address-zip').value = zipCode;
                     if (country) document.getElementById('address-country').value = country;
                 }
-            });
+            } catch (e) {
+                // Silently fail - user can still manually enter address
+            }
         }
 
         function confirmLocation() {
