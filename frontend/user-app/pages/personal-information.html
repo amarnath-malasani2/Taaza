@@ -305,14 +305,31 @@
 
                         <!-- Date of Birth -->
                         <div class="mb-6">
-                            <label class="field-label mb-1.5 block" for="dob">Date of Birth</label>
-                            <div class="relative">
-                                <div class="absolute left-3.5 top-1/2 -translate-y-1/2">
-                                    <span class="material-symbols-outlined text-gray-400 text-[20px]">cake</span>
+                            <label class="field-label mb-1.5 block">Date of Birth</label>
+                            <div class="flex gap-2.5">
+                                <!-- Day -->
+                                <div class="relative flex-1">
+                                    <select class="input-modern w-full rounded-xl h-12 px-3 text-gray-800 focus:outline-none appearance-none text-center font-medium"
+                                        id="dob-day" style="background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%2394a3b8%22%3E%3Cpath d=%22M7 10l5 5 5-5H7z%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 6px center; background-size: 18px;">
+                                        <option value="">Day</option>
+                                    </select>
                                 </div>
-                                <input class="input-modern w-full rounded-xl h-12 pl-11 pr-4 text-gray-800 focus:outline-none"
-                                    id="dob" type="date" autocomplete="bday" />
+                                <!-- Month -->
+                                <div class="relative flex-[1.4]">
+                                    <select class="input-modern w-full rounded-xl h-12 px-3 text-gray-800 focus:outline-none appearance-none text-center font-medium"
+                                        id="dob-month" style="background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%2394a3b8%22%3E%3Cpath d=%22M7 10l5 5 5-5H7z%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 6px center; background-size: 18px;">
+                                        <option value="">Month</option>
+                                    </select>
+                                </div>
+                                <!-- Year -->
+                                <div class="relative flex-1">
+                                    <select class="input-modern w-full rounded-xl h-12 px-3 text-gray-800 focus:outline-none appearance-none text-center font-medium"
+                                        id="dob-year" style="background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%2394a3b8%22%3E%3Cpath d=%22M7 10l5 5 5-5H7z%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 6px center; background-size: 18px;">
+                                        <option value="">Year</option>
+                                    </select>
+                                </div>
                             </div>
+                            <input type="hidden" id="dob" />
                             <p id="dob-error" class="text-danger text-xs mt-1.5 hidden font-medium" role="alert"></p>
                         </div>
 
@@ -389,6 +406,100 @@
 
     <script src="../js/session.js"></script>
     <script>
+        // Populate DOB dropdowns
+        function initDobDropdowns() {
+            const daySelect = document.getElementById('dob-day');
+            const monthSelect = document.getElementById('dob-month');
+            const yearSelect = document.getElementById('dob-year');
+
+            // Days 1-31
+            for (let d = 1; d <= 31; d++) {
+                const opt = document.createElement('option');
+                opt.value = String(d).padStart(2, '0');
+                opt.textContent = d;
+                daySelect.appendChild(opt);
+            }
+
+            // Months
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            months.forEach((m, i) => {
+                const opt = document.createElement('option');
+                opt.value = String(i + 1).padStart(2, '0');
+                opt.textContent = m;
+                monthSelect.appendChild(opt);
+            });
+
+            // Years (current year - 13 down to current year - 120)
+            const currentYear = new Date().getFullYear();
+            for (let y = currentYear - 13; y >= currentYear - 120; y--) {
+                const opt = document.createElement('option');
+                opt.value = String(y);
+                opt.textContent = y;
+                yearSelect.appendChild(opt);
+            }
+
+            // Sync to hidden field on change
+            [daySelect, monthSelect, yearSelect].forEach(el => {
+                el.addEventListener('change', syncDobValue);
+            });
+
+            // Update days when month/year changes
+            monthSelect.addEventListener('change', updateDays);
+            yearSelect.addEventListener('change', updateDays);
+        }
+
+        function updateDays() {
+            const daySelect = document.getElementById('dob-day');
+            const month = parseInt(document.getElementById('dob-month').value);
+            const year = parseInt(document.getElementById('dob-year').value);
+            const currentDay = daySelect.value;
+
+            if (!month) return;
+
+            const daysInMonth = new Date(year || 2000, month, 0).getDate();
+
+            // Remove excess days
+            while (daySelect.options.length > daysInMonth + 1) {
+                daySelect.remove(daySelect.options.length - 1);
+            }
+            // Add missing days
+            for (let d = daySelect.options.length; d <= daysInMonth; d++) {
+                const opt = document.createElement('option');
+                opt.value = String(d).padStart(2, '0');
+                opt.textContent = d;
+                daySelect.appendChild(opt);
+            }
+
+            // Restore selection if still valid
+            if (parseInt(currentDay) <= daysInMonth) {
+                daySelect.value = currentDay;
+            }
+        }
+
+        function syncDobValue() {
+            const day = document.getElementById('dob-day').value;
+            const month = document.getElementById('dob-month').value;
+            const year = document.getElementById('dob-year').value;
+
+            if (day && month && year) {
+                document.getElementById('dob').value = `${year}-${month}-${day}`;
+            } else {
+                document.getElementById('dob').value = '';
+            }
+        }
+
+        function setDobFromValue(dateStr) {
+            if (!dateStr) return;
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return;
+
+            document.getElementById('dob-year').value = String(date.getFullYear());
+            document.getElementById('dob-month').value = String(date.getMonth() + 1).padStart(2, '0');
+            updateDays();
+            document.getElementById('dob-day').value = String(date.getDate()).padStart(2, '0');
+            syncDobValue();
+        }
+
         function sanitizeInput(input) {
             if (typeof input !== 'string') return input;
             return input
@@ -428,14 +539,7 @@
             document.getElementById('gender').value = user.gender || '';
 
             if (user.date_of_birth && user.date_of_birth !== '') {
-                const date = new Date(user.date_of_birth);
-                if (!isNaN(date.getTime())) {
-                    document.getElementById('dob').value = date.toISOString().split('T')[0];
-                } else {
-                    document.getElementById('dob').value = '';
-                }
-            } else {
-                document.getElementById('dob').value = '';
+                setDobFromValue(user.date_of_birth);
             }
 
             if (user.name) {
@@ -515,6 +619,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', async function() {
+            initDobDropdowns();
             showLoading();
             await loadUserProfile();
             hideLoading();
