@@ -38,6 +38,16 @@
             overflow-x: hidden;
         }
 
+        /* Hide scrollbar */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        * {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
         .header-gradient {
             background: linear-gradient(135deg, #1E293B 0%, #1E3A6F 100%);
         }
