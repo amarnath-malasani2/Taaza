@@ -142,7 +142,6 @@
                     </div>
                 </div>
                 <h2 class="text-xl font-bold text-white mt-3 animate-slide-up" id="userName">User Name</h2>
-                <p class="text-white/60 text-sm mt-0.5 animate-slide-up" id="userEmail">email@example.com</p>
             </div>
         </header>
 
@@ -227,14 +226,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const userName = localStorage.getItem('userName') || 'User';
-            const userEmail = localStorage.getItem('userEmail') || '';
             document.getElementById('userName').textContent = userName;
             document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
-            if (userEmail) {
-                document.getElementById('userEmail').textContent = userEmail;
-            } else {
-                document.getElementById('userEmail').style.display = 'none';
-            }
         });
 
         function showLogoutToast() {

@@ -3,306 +3,399 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>My Addresses</title>
-    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700;900&amp;display=swap"
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <title>My Addresses - Taaza</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
         rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-    <!-- Google Maps API with Places -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400" rel="stylesheet" />
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTBpRefq3kQWU79YiRZOeGb7jamVPHHnw&libraries=places"></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <style type="text/tailwindcss">
-        :root {
-            --golden-yellow: #F59E0B;
-            --dark-blue: #1E293B;
-        }
-
-        /* Smooth transitions */
-        .transition-slow {
-            transition: all 0.3s ease;
-        }
-        
-        /* Map container */
-        #map-container, #google-map {
-            height: 300px;
-            width: 100%;
-            border-radius: 0.5rem;
-            overflow: hidden;
-            margin-top: 1rem;
-        }
-        
-        /* Toast notification */
-        #toast {
-            transition: opacity 0.3s ease;
-        }
-        
-        /* Loading spinner */
-        .spinner {
-            width: 24px;
-            height: 24px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Autocomplete dropdown styling */
-        .pac-container {
-            z-index: 10000 !important;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            border: none;
-        }
-    </style>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#1E293B",
-                        "background-light": "#f6f7f8",
-                        "content-light": "#ffffff",
-                        "text-light": "#111827",
-                        "subtext-light": "#64748b",
+                        "primary": "#F59E0B",
+                        "primary-dark": "#D97706",
+                        "dark": "#1E293B",
+                        "dark-light": "#334155",
                         "danger": "#ef4444"
                     },
                     fontFamily: {
-                        "display": ["Work Sans", "sans-serif"]
-                    },
-                    borderRadius: {
-                        "DEFAULT": "0.5rem",
-                        "lg": "0.75rem",
-                        "xl": "1rem",
-                        "full": "9999px"
-                    },
+                        "display": ["Space Grotesk", "sans-serif"]
+                    }
                 },
             },
         }
     </script>
     <style>
         body {
-            min-height: max(884px, 100dvh);
-            background-color: #f6f7f8;
+            font-family: 'Space Grotesk', sans-serif;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background: #f8fafc;
         }
 
-        /* Custom styles with your colors */
-        .golden-bg {
-            background-color: #F59E0B;
+        ::-webkit-scrollbar { display: none; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .header-gradient {
+            background: linear-gradient(135deg, #1E293B 0%, #1E3A6F 100%);
         }
 
-        .dark-blue-text {
-            color: #1E293B;
+        .card-shadow {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06);
         }
 
-        .dark-blue-bg {
-            background-color: #1E293B;
+        .add-btn {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            transition: all 0.25s ease;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);
+        }
+
+        .add-btn:active {
+            transform: scale(0.98);
+        }
+
+        .address-card {
+            transition: all 0.2s ease;
+            border: 1.5px solid #f1f5f9;
+        }
+
+        .address-card:hover {
+            border-color: #F59E0B;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.1);
+        }
+
+        .address-card.default-card {
+            border-color: #F59E0B;
+            background: linear-gradient(135deg, #fffbeb, #ffffff);
+        }
+
+        .input-modern {
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            transition: all 0.25s ease;
+            font-size: 16px;
+        }
+
+        .input-modern:focus {
+            border-color: #F59E0B;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.4s ease-out forwards;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        .modal-overlay {
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            animation: slideUp 0.3s ease-out;
+        }
+
+        #google-map {
+            height: 250px;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .pac-container {
+            z-index: 10000 !important;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            border: none;
+            margin-top: 4px;
+        }
+
+        .toast-msg {
+            background: linear-gradient(135deg, #1E293B, #334155);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .badge-default {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: #92400e;
+        }
+
+        .action-btn {
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .action-btn:active {
+            transform: scale(0.9);
         }
     </style>
 </head>
 
 <body class="font-display">
-    <div class="relative flex min-h-screen w-full flex-col max-w-screen-2xl mx-auto">
+    <div class="relative flex min-h-screen w-full flex-col max-w-lg mx-auto overflow-x-hidden">
+
         <!-- Address Modal -->
-        <div id="address-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 hidden">
-            <div class="bg-white rounded-xl shadow-lg w-full max-w-md mx-4 p-6 relative max-h-[90vh] overflow-y-auto">
-                <button type="button" onclick="closeModal()"
-                    class="absolute top-2 right-2 p-2 rounded-full hover:bg-gray-100">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-                <h2 id="modal-title" class="text-xl font-bold mb-4">Add Address</h2>
+        <div id="address-modal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 modal-overlay hidden">
+            <div class="modal-content bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full max-w-lg sm:mx-4 p-5 relative max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between mb-5">
+                    <h2 id="modal-title" class="text-lg font-bold text-gray-800">Add Address</h2>
+                    <button type="button" onclick="closeModal()" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <span class="material-symbols-outlined text-gray-400">close</span>
+                    </button>
+                </div>
+
                 <form id="address-form" class="space-y-4">
                     <input type="hidden" id="edit-index" />
+
+                    <!-- Label -->
                     <div>
-                        <label class="block text-sm font-medium mb-1" for="address-label">Label</label>
-                        <input id="address-label" class="w-full rounded-lg border p-2" type="text"
-                            placeholder="e.g. Home, Work" required />
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1" for="address-line">Address</label>
-                        <input id="address-line" class="w-full rounded-lg border p-2" type="text"
-                            placeholder="Street, Apt, etc." required />
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium mb-1" for="address-city">City</label>
-                            <input id="address-city" class="w-full rounded-lg border p-2" type="text" required />
+                        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5" for="address-label">Label *</label>
+                        <div class="flex gap-2 mb-2">
+                            <button type="button" onclick="setLabel('Home')" class="label-chip px-4 py-2 rounded-full text-sm font-medium border border-gray-200 hover:border-primary hover:bg-amber-50 transition-colors">Home</button>
+                            <button type="button" onclick="setLabel('Work')" class="label-chip px-4 py-2 rounded-full text-sm font-medium border border-gray-200 hover:border-primary hover:bg-amber-50 transition-colors">Work</button>
+                            <button type="button" onclick="setLabel('Other')" class="label-chip px-4 py-2 rounded-full text-sm font-medium border border-gray-200 hover:border-primary hover:bg-amber-50 transition-colors">Other</button>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-1" for="address-zip">ZIP Code</label>
-                            <input id="address-zip" class="w-full rounded-lg border p-2" type="text" required />
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1" for="address-country">Country</label>
-                        <input id="address-country" class="w-full rounded-lg border p-2" type="text" required />
+                        <input id="address-label" class="input-modern w-full rounded-xl h-11 px-4 text-gray-800 focus:outline-none" type="text"
+                            placeholder="Or type custom label" required />
                     </div>
 
-                    <!-- Map Location Selection -->
+                    <!-- Address -->
                     <div>
-                        <label class="block text-sm font-medium mb-1">Location on Map</label>
-                        <button type="button" onclick="openMapModal()"
-                            class="flex items-center gap-2 text-primary mb-2">
-                            <span class="material-symbols-outlined">map</span>
-                            <span>Select on Map</span>
-                        </button>
-                        <div class="text-xs text-subtext-light">
-                            <span id="coordinates-display">No location selected</span>
+                        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5" for="address-line">Address *</label>
+                        <input id="address-line" class="input-modern w-full rounded-xl h-11 px-4 text-gray-800 focus:outline-none" type="text"
+                            placeholder="Street, Apt, Building..." required />
+                    </div>
+
+                    <!-- City + ZIP -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5" for="address-city">City *</label>
+                            <input id="address-city" class="input-modern w-full rounded-xl h-11 px-4 text-gray-800 focus:outline-none" type="text" required />
                         </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5" for="address-zip">PIN Code *</label>
+                            <input id="address-zip" class="input-modern w-full rounded-xl h-11 px-4 text-gray-800 focus:outline-none" type="text" required />
+                        </div>
+                    </div>
+
+                    <!-- Country -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5" for="address-country">Country *</label>
+                        <input id="address-country" class="input-modern w-full rounded-xl h-11 px-4 text-gray-800 focus:outline-none" type="text" value="India" required />
+                    </div>
+
+                    <!-- Map Location -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Pin Location</label>
+                        <button type="button" onclick="openMapModal()"
+                            class="flex items-center gap-2 text-sm font-medium text-dark bg-gray-50 hover:bg-gray-100 px-4 py-2.5 rounded-xl transition-colors w-full">
+                            <span class="material-symbols-outlined text-primary text-[20px]">my_location</span>
+                            <span>Select on Map</span>
+                            <span class="ml-auto text-xs text-gray-400" id="coordinates-display">Optional</span>
+                        </button>
                         <input type="hidden" id="address-lat" />
                         <input type="hidden" id="address-lng" />
                     </div>
 
-                    <div class="flex items-center gap-2">
-                        <input id="address-default" type="checkbox" class="rounded" />
-                        <label for="address-default" class="text-sm">Set as default address</label>
-                    </div>
+                    <!-- Default checkbox -->
+                    <label class="flex items-center gap-3 cursor-pointer py-1">
+                        <input id="address-default" type="checkbox" class="w-5 h-5 rounded-md text-primary border-gray-300 focus:ring-primary" />
+                        <span class="text-sm font-medium text-gray-600">Set as default delivery address</span>
+                    </label>
+
+                    <!-- Submit -->
                     <button type="submit"
-                        class="w-full golden-bg dark-blue-text font-bold rounded-lg py-3 mt-2 hover:bg-[#e6c200]">Save
-                        Address</button>
+                        class="add-btn w-full text-dark font-bold rounded-xl py-3.5 mt-2 text-[15px]">
+                        Save Address
+                    </button>
                 </form>
             </div>
         </div>
 
         <!-- Map Modal -->
-        <div id="map-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 hidden">
-            <div class="bg-white rounded-xl shadow-lg w-full max-w-2xl mx-4 p-6 relative">
-                <button type="button" onclick="closeMapModal()"
-                    class="absolute top-2 right-2 p-2 rounded-full hover:bg-gray-100 z-10">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-                <h2 class="text-xl font-bold mb-4">Select Location on Map</h2>
-                <div class="flex gap-2 mb-4">
-                    <button id="locate-btn" onclick="locateUser()"
-                        class="flex items-center gap-1 text-sm bg-primary/10 text-primary px-3 py-2 rounded-lg hover:bg-primary/20 transition-colors">
-                        <span class="material-symbols-outlined">my_location</span>
-                        Use My Location
+        <div id="map-modal" class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/40 modal-overlay hidden">
+            <div class="modal-content bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full max-w-lg sm:mx-4 p-5 relative">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold text-gray-800">Select Location</h2>
+                    <button type="button" onclick="closeMapModal()" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <span class="material-symbols-outlined text-gray-400">close</span>
                     </button>
-                    <button onclick="showLocationHelp()" 
-                        class="flex items-center gap-1 text-sm bg-gray-100 text-gray-600 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors">
-                        <span class="material-symbols-outlined">help</span>
-                        Help
+                </div>
+
+                <div class="flex gap-2 mb-3">
+                    <button id="locate-btn" onclick="locateUser()"
+                        class="flex items-center gap-1.5 text-sm font-medium bg-dark text-white px-4 py-2.5 rounded-xl hover:bg-dark-light transition-colors">
+                        <span class="material-symbols-outlined text-[18px]">my_location</span>
+                        My Location
                     </button>
                     <div id="locate-loading"
-                        class="hidden items-center gap-1 text-sm bg-primary/10 text-primary px-3 py-2 rounded-lg">
-                        <div class="spinner" style="width: 16px; height: 16px; border-width: 2px;"></div>
-                        <span>Getting location...</span>
+                        class="hidden items-center gap-1.5 text-sm bg-gray-100 text-gray-600 px-4 py-2.5 rounded-xl">
+                        <div class="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                        <span>Finding...</span>
                     </div>
                 </div>
+
                 <div id="google-map"></div>
-                <div class="flex justify-end gap-2 mt-4">
-                    <button type="button" onclick="closeMapModal()"
-                        class="px-4 py-2 rounded-lg border hover:bg-gray-100">
-                        Cancel
-                    </button>
-                    <button type="button" onclick="confirmLocation()"
-                        class="px-4 py-2 rounded-lg golden-bg dark-blue-text font-bold hover:bg-[#e6c200]">
-                        Confirm Location
-                    </button>
+
+                <button type="button" onclick="confirmLocation()"
+                    class="add-btn w-full text-dark font-bold rounded-xl py-3.5 mt-4 text-[15px]">
+                    Confirm Location
+                </button>
+            </div>
+        </div>
+
+        <!-- Delete Confirm Modal -->
+        <div id="delete-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 modal-overlay hidden">
+            <div class="modal-content bg-white rounded-2xl shadow-2xl max-w-xs w-full mx-4 overflow-hidden">
+                <div class="p-6 text-center">
+                    <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+                        <span class="material-symbols-outlined text-danger text-3xl">delete</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-1">Delete Address?</h3>
+                    <p class="text-gray-500 text-sm">This can't be undone.</p>
+                </div>
+                <div class="flex border-t border-gray-100">
+                    <button onclick="closeDeleteModal()" class="flex-1 py-3.5 text-gray-600 font-semibold hover:bg-gray-50 transition-colors border-r border-gray-100">Cancel</button>
+                    <button id="confirm-delete-btn" class="flex-1 py-3.5 text-danger font-semibold hover:bg-red-50 transition-colors">Delete</button>
                 </div>
             </div>
         </div>
 
         <!-- Header -->
-        <header class="dark-blue-bg text-white sticky top-0 z-10 shadow-md">
-            <div class="px-3 sm:px-6 lg:px-12 xl:px-16">
-                <div class="flex h-16 sm:h-20 lg:h-24 items-center justify-between">
-                    <button class="p-2 -ml-2" onclick="history.back()" aria-label="Go back">
-                        <svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z">
-                            </path>
+        <header class="header-gradient text-white sticky top-0 z-10">
+            <div class="px-4">
+                <div class="flex h-14 items-center justify-between">
+                    <button class="p-2 -ml-2 rounded-full hover:bg-white/10 transition-colors" onclick="history.back()" aria-label="Go back">
+                        <svg fill="currentColor" height="22" viewBox="0 0 256 256" width="22" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
                         </svg>
                     </button>
-                    <h1 class="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold">My Addresses</h1>
-                    <div class="w-10 h-10 flex-shrink-0"></div>
+                    <h1 class="text-lg font-bold">My Addresses</h1>
+                    <div class="w-10"></div>
                 </div>
             </div>
         </header>
 
         <!-- Main Content -->
         <main class="flex-grow">
-            <div id="addresses-list" class="px-3 sm:px-6 lg:px-12 xl:px-16 pt-6 pb-8 space-y-4"></div>
-            <div id="empty-state" class="hidden flex flex-col items-center justify-center py-16">
-                <span class="material-symbols-outlined text-6xl text-primary mb-4">location_off</span>
-                <p class="text-lg text-subtext-light mb-2">No addresses found</p>
-                <p class="text-subtext-light mb-6">Add your first address to get started.</p>
+            <!-- Addresses List -->
+            <div id="addresses-list" class="px-4 pt-4 pb-4 space-y-3"></div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden flex flex-col items-center justify-center py-20 px-6">
+                <div class="w-20 h-20 rounded-full bg-amber-50 flex items-center justify-center mb-5">
+                    <span class="material-symbols-outlined text-primary text-4xl">add_location</span>
+                </div>
+                <p class="text-lg font-bold text-gray-800 mb-1">No addresses yet</p>
+                <p class="text-sm text-gray-400 text-center mb-6">Add your delivery address to get started with Taaza</p>
                 <button onclick="openModal()"
-                    class="golden-bg dark-blue-text font-bold rounded-lg px-6 py-3 hover:bg-[#e6c200]">Add
-                    Address</button>
+                    class="add-btn text-dark font-bold rounded-xl px-8 py-3 text-sm">
+                    Add Your First Address
+                </button>
             </div>
         </main>
 
-        <!-- Add New Address Button -->
-        <div class="p-3 sm:p-6 lg:p-12 xl:p-16 sticky bottom-0 bg-background-light">
-            <button onclick="openModal()" class="flex w-full items-center justify-center gap-2 rounded-lg 
-                 h-12 sm:h-14 lg:h-16  
-                 px-6 lg:px-8  
-                 golden-bg dark-blue-text font-bold hover:bg-[#e6c200] active:bg-[#ccad00] 
-                 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50">
-                <span class="material-symbols-outlined">add</span>
-                <span class="truncate">Add New Address</span>
+        <!-- Sticky Add Button -->
+        <div class="sticky bottom-0 px-4 py-3 bg-gradient-to-t from-[#f8fafc] via-[#f8fafc] to-transparent" id="add-btn-container">
+            <button onclick="openModal()" class="add-btn flex w-full items-center justify-center gap-2 rounded-xl h-[52px] px-6 text-dark font-bold text-[15px] focus:outline-none">
+                <span class="material-symbols-outlined text-[20px]">add</span>
+                <span>Add New Address</span>
             </button>
         </div>
 
-        <div class="h-5"></div>
+        <!-- Toast -->
+        <div id="toast" class="hidden fixed bottom-20 left-1/2 transform -translate-x-1/2 toast-msg text-white px-5 py-3 rounded-xl shadow-xl z-50 font-medium text-sm"></div>
     </div>
 
     <script src="../js/session.js"></script>
     <script src="../js/addresses-api.js"></script>
     <script>
-        // Address management logic
         let addresses = [];
         let addressAPI = new AddressAPI();
-
-        // Google Maps variables
         let map, marker, selectedLocation = null;
         let autocomplete;
+        let deleteTargetId = null;
+
+        function setLabel(label) {
+            document.getElementById('address-label').value = label;
+            document.querySelectorAll('.label-chip').forEach(btn => {
+                btn.classList.remove('border-primary', 'bg-amber-50');
+                if (btn.textContent.trim() === label) {
+                    btn.classList.add('border-primary', 'bg-amber-50');
+                }
+            });
+        }
 
         function renderAddresses() {
             const list = document.getElementById('addresses-list');
             const empty = document.getElementById('empty-state');
+            const addBtnContainer = document.getElementById('add-btn-container');
             list.innerHTML = '';
+
             if (!addresses.length) {
                 list.classList.add('hidden');
                 empty.classList.remove('hidden');
+                addBtnContainer.classList.add('hidden');
                 return;
             }
+
             list.classList.remove('hidden');
             empty.classList.add('hidden');
+            addBtnContainer.classList.remove('hidden');
+
             addresses.forEach((addr, i) => {
+                const isDefault = addr.is_default;
+                const icon = addr.label.toLowerCase() === 'work' ? 'work' : addr.label.toLowerCase() === 'other' ? 'place' : 'home';
                 const card = document.createElement('div');
-                card.className = 'bg-content-light rounded-lg shadow-sm overflow-hidden mb-4';
+                card.className = `address-card bg-white rounded-2xl overflow-hidden animate-slide-up ${isDefault ? 'default-card' : ''}`;
+                card.style.animationDelay = `${i * 0.05}s`;
+                card.style.opacity = '0';
                 card.innerHTML = `
-                    <div class="p-4 sm:p-6 flex items-start justify-between">
-                        <div class="space-y-2 flex-1">
-                            <div class="flex items-center gap-3">
-                                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                                    <span class="material-symbols-outlined">${addr.label.toLowerCase() === 'work' ? 'work' : 'home'}</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <h2 class="text-lg sm:text-xl font-bold text-text-light">${addr.label}</h2>
-                                    ${addr.is_default ? '<span class="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full font-medium">Default</span>' : ''}
-                                </div>
+                    <div class="p-4">
+                        <div class="flex items-start gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-xl ${isDefault ? 'bg-primary/20 text-primary' : 'bg-gray-100 text-gray-500'} flex-shrink-0 mt-0.5">
+                                <span class="material-symbols-outlined text-[20px]">${icon}</span>
                             </div>
-                            <div class="pl-13">
-                                <p class="text-text-light">${addr.address_line}</p>
-                                <p class="text-subtext-light">${addr.city}, ${addr.zip_code}</p>
-                                <p class="text-subtext-light">${addr.country}</p>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <h3 class="font-bold text-gray-800 text-[15px]">${addr.label}</h3>
+                                    ${isDefault ? '<span class="badge-default text-[10px] px-2 py-0.5 rounded-full font-semibold">DEFAULT</span>' : ''}
+                                </div>
+                                <p class="text-sm text-gray-600 leading-relaxed">${addr.address_line}</p>
+                                <p class="text-xs text-gray-400 mt-0.5">${addr.city}, ${addr.zip_code} &middot; ${addr.country}</p>
                             </div>
                         </div>
-                        <div class="flex flex-col gap-2 items-end">
-                            ${!addr.is_default ? `<button onclick="setDefaultAddress(${addr.id})" class="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full hover:bg-primary/20 transition-slow">Set Default</button>` : ''}
-                            <button onclick="editAddress(${addr.id})" class="p-2 rounded-full hover:bg-primary/5 transition-slow">
-                                <span class="material-symbols-outlined text-primary">edit</span>
+                        <div class="flex items-center gap-1 mt-3 pt-3 border-t border-gray-100 justify-end">
+                            ${!isDefault ? `<button onclick="setDefaultAddress(${addr.id})" class="action-btn text-xs font-medium text-dark bg-gray-50 hover:bg-amber-50 px-3 py-1.5 rounded-lg">Set Default</button>` : ''}
+                            <button onclick="editAddress(${addr.id})" class="action-btn p-2 rounded-lg hover:bg-gray-50">
+                                <span class="material-symbols-outlined text-gray-400 text-[18px]">edit</span>
                             </button>
-                            <button onclick="deleteAddress(${addr.id})" class="p-2 rounded-full hover:bg-danger/5 transition-slow">
-                                <span class="material-symbols-outlined text-danger">delete</span>
+                            <button onclick="confirmDelete(${addr.id})" class="action-btn p-2 rounded-lg hover:bg-red-50">
+                                <span class="material-symbols-outlined text-gray-400 hover:text-danger text-[18px]">delete</span>
                             </button>
                         </div>
                     </div>
@@ -315,13 +408,14 @@
             document.getElementById('address-modal').classList.remove('hidden');
             document.getElementById('address-form').reset();
             document.getElementById('edit-index').value = '';
-            document.getElementById('coordinates-display').textContent = 'No location selected';
+            document.getElementById('coordinates-display').textContent = 'Optional';
             document.getElementById('address-lat').value = '';
             document.getElementById('address-lng').value = '';
+            document.getElementById('address-country').value = 'India';
             selectedLocation = null;
             document.getElementById('modal-title').textContent = editAddr ? 'Edit Address' : 'Add Address';
+            document.querySelectorAll('.label-chip').forEach(btn => btn.classList.remove('border-primary', 'bg-amber-50'));
 
-            // Initialize autocomplete for address input
             initAutocomplete();
 
             if (editAddr) {
@@ -336,15 +430,35 @@
                 if (editAddr.latitude && editAddr.longitude) {
                     document.getElementById('address-lat').value = editAddr.latitude;
                     document.getElementById('address-lng').value = editAddr.longitude;
-                    document.getElementById('coordinates-display').textContent =
-                        `${parseFloat(editAddr.latitude).toFixed(4)}, ${parseFloat(editAddr.longitude).toFixed(4)}`;
+                    document.getElementById('coordinates-display').textContent = 'Location set';
                     selectedLocation = { lat: parseFloat(editAddr.latitude), lng: parseFloat(editAddr.longitude) };
                 }
+
+                // Highlight matching label chip
+                document.querySelectorAll('.label-chip').forEach(btn => {
+                    if (btn.textContent.trim() === editAddr.label) {
+                        btn.classList.add('border-primary', 'bg-amber-50');
+                    }
+                });
             }
         }
 
         function closeModal() {
             document.getElementById('address-modal').classList.add('hidden');
+        }
+
+        function confirmDelete(id) {
+            deleteTargetId = id;
+            document.getElementById('delete-modal').classList.remove('hidden');
+            document.getElementById('confirm-delete-btn').onclick = async function() {
+                await deleteAddress(deleteTargetId);
+                closeDeleteModal();
+            };
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+            deleteTargetId = null;
         }
 
         function openMapModal() {
@@ -354,124 +468,46 @@
 
         function closeMapModal() {
             document.getElementById('map-modal').classList.add('hidden');
-            if (map) {
-                // Google Maps doesn't need explicit cleanup like Leaflet
-                map = null;
-                marker = null;
-            }
+            map = null;
+            marker = null;
         }
 
         function initAutocomplete() {
             const addressInput = document.getElementById('address-line');
-
-            // Remove any existing autocomplete bindings
             if (autocomplete) {
                 google.maps.event.clearInstanceListeners(addressInput);
             }
 
-            // Create the autocomplete object
-            autocomplete = new google.maps.places.Autocomplete(addressInput, {
-                types: ['address'],
-                componentRestrictions: { country: '' } // Remove this line to allow all countries
-            });
+            autocomplete = new google.maps.places.Autocomplete(addressInput, { types: ['address'] });
 
-            // When the user selects an address from the dropdown, populate the form fields
             autocomplete.addListener('place_changed', function () {
                 const place = autocomplete.getPlace();
-                if (!place.geometry) {
-                    // User entered the name of a Place that was not suggested and pressed Enter
-                    return;
-                }
+                if (!place.geometry) return;
 
-                // Extract address components
-                let streetNumber = '';
-                let route = '';
-                let city = '';
-                let state = '';
-                let zipCode = '';
-                let country = '';
+                let city = '', zipCode = '', country = '';
 
                 for (const component of place.address_components) {
-                    const componentType = component.types[0];
-
-                    switch (componentType) {
-                        case 'street_number':
-                            streetNumber = component.long_name;
-                            break;
-                        case 'route':
-                            route = component.long_name;
-                            break;
-                        case 'locality':
-                            city = component.long_name;
-                            break;
-                        case 'administrative_area_level_1':
-                            state = component.long_name;
-                            break;
-                        case 'postal_code':
-                            zipCode = component.long_name;
-                            break;
-                        case 'country':
-                            country = component.long_name;
-                            break;
-                    }
+                    const type = component.types[0];
+                    if (type === 'locality') city = component.long_name;
+                    if (type === 'postal_code') zipCode = component.long_name;
+                    if (type === 'country') country = component.long_name;
                 }
 
-                // Set the address line
-                let addressLine = '';
-                if (streetNumber && route) {
-                    addressLine = `${streetNumber} ${route}`;
-                } else if (route) {
-                    addressLine = route;
-                } else {
-                    addressLine = place.formatted_address.split(',')[0];
-                }
+                if (city) document.getElementById('address-city').value = city;
+                if (zipCode) document.getElementById('address-zip').value = zipCode;
+                if (country) document.getElementById('address-country').value = country;
 
-                document.getElementById('address-line').value = addressLine;
-
-                // Set city
-                if (city) {
-                    document.getElementById('address-city').value = city;
-                }
-
-                // Set ZIP code
-                if (zipCode) {
-                    document.getElementById('address-zip').value = zipCode;
-                }
-
-                // Set country
-                if (country) {
-                    document.getElementById('address-country').value = country;
-                }
-
-                // Set coordinates
                 const lat = place.geometry.location.lat();
                 const lng = place.geometry.location.lng();
-
                 document.getElementById('address-lat').value = lat;
                 document.getElementById('address-lng').value = lng;
-                document.getElementById('coordinates-display').textContent =
-                    `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-
+                document.getElementById('coordinates-display').textContent = 'Location set';
                 selectedLocation = { lat, lng };
-
-                // If no label is set, suggest one
-                if (!document.getElementById('address-label').value) {
-                    if (place.name && place.name !== addressLine) {
-                        document.getElementById('address-label').value = place.name;
-                    } else if (place.types.includes('establishment')) {
-                        document.getElementById('address-label').value = 'My Location';
-                    }
-                }
             });
         }
 
         function initMap() {
-            console.log('🗺️ Initializing Google Map...');
-            
-            // Default center (London)
-            const defaultCenter = { lat: 51.505, lng: -0.09 };
-
-            // Create the map
+            const defaultCenter = { lat: 12.9716, lng: 77.5946 };
             map = new google.maps.Map(document.getElementById('google-map'), {
                 zoom: 13,
                 center: selectedLocation || defaultCenter,
@@ -479,285 +515,92 @@
                 streetViewControl: false,
                 fullscreenControl: false,
                 zoomControl: true,
-                gestureHandling: 'cooperative'
+                gestureHandling: 'greedy'
             });
 
-            console.log('✅ Google Map initialized');
+            if (selectedLocation) setMarker(selectedLocation);
 
-            // If we have a previously selected location, add a marker
-            if (selectedLocation) {
-                console.log('📍 Setting existing location marker');
-                setMarker(selectedLocation);
-            }
-
-            // Add click event to set marker
             map.addListener('click', function (event) {
-                console.log('👆 Map clicked at:', event.latLng.lat(), event.latLng.lng());
                 setMarker(event.latLng);
                 reverseGeocode(event.latLng.lat(), event.latLng.lng());
             });
-            
-            // Add instruction overlay
-            const instructionDiv = document.createElement('div');
-            instructionDiv.innerHTML = '👆 Click on map to select location or use "My Location" button';
-            instructionDiv.style.cssText = 'background: rgba(0,0,0,0.7); color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1000; pointer-events: none;';
-            document.getElementById('google-map').appendChild(instructionDiv);
-            
-            // Hide instruction after 5 seconds
-            setTimeout(() => {
-                if (instructionDiv.parentNode) {
-                    instructionDiv.remove();
-                }
-            }, 5000);
         }
 
         function setMarker(location) {
-            // Remove existing marker
-            if (marker) {
-                marker.setMap(null);
-            }
-
-            // Create new marker
-            marker = new google.maps.Marker({
-                position: location,
-                map: map,
-                draggable: true
-            });
-
-            // Update selected location when marker is dragged
+            if (marker) marker.setMap(null);
+            marker = new google.maps.Marker({ position: location, map: map, draggable: true });
             marker.addListener('dragend', function () {
-                const position = marker.getPosition();
-                selectedLocation = { lat: position.lat(), lng: position.lng() };
-                reverseGeocode(position.lat(), position.lng());
+                const pos = marker.getPosition();
+                selectedLocation = { lat: pos.lat(), lng: pos.lng() };
+                reverseGeocode(pos.lat(), pos.lng());
             });
-
             selectedLocation = { lat: location.lat(), lng: location.lng() };
         }
 
         function locateUser() {
-            console.log('🌍 Geolocation attempt started');
-            console.log('🔒 Protocol:', window.location.protocol);
-            console.log('🌐 Host:', window.location.host);
-            
-            // Check if geolocation is supported
-            if (!navigator.geolocation) {
-                showToast('Location not supported');
-                return;
-            }
+            if (!navigator.geolocation) { showToast('Location not supported'); return; }
 
-            // Check if we're on HTTPS or localhost
-            const isSecure = window.location.protocol === 'https:' || 
-                           window.location.hostname === 'localhost' || 
-                           window.location.hostname === '127.0.0.1';
-            
-            if (!isSecure) {
-                showToast('HTTPS required');
-                console.warn('Geolocation requires HTTPS in production');
-            }
-
-            // Show loading state
             document.getElementById('locate-btn').classList.add('hidden');
             document.getElementById('locate-loading').classList.remove('hidden');
-            
-            // Extended timeout for better reliability
-            const forceTimeout = setTimeout(() => {
-                document.getElementById('locate-btn').classList.remove('hidden');
-                document.getElementById('locate-loading').classList.add('hidden');
-                showToast('Location timeout');
-                console.log('🚫 Forced timeout after 15 seconds');
-            }, 15000);
+            document.getElementById('locate-loading').classList.add('flex');
 
-            // Try to get location with better options
             navigator.geolocation.getCurrentPosition(
                 function(position) {
-                    clearTimeout(forceTimeout);
-                    console.log('✅ Location success:', position);
-                    console.log('📍 Coordinates:', position.coords.latitude, position.coords.longitude);
-                    console.log('🎯 Accuracy:', position.coords.accuracy, 'meters');
-                    
-                    const userLocation = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    };
-
-                    // Update map
-                    if (map) {
-                        map.setCenter(userLocation);
-                        map.setZoom(16);
-                        setMarker(userLocation);
-                        reverseGeocode(userLocation.lat, userLocation.lng);
-                    }
-                    
+                    const loc = { lat: position.coords.latitude, lng: position.coords.longitude };
+                    if (map) { map.setCenter(loc); map.setZoom(16); setMarker(loc); reverseGeocode(loc.lat, loc.lng); }
                     showToast('Location found');
-
-                    // Hide loading state
                     document.getElementById('locate-btn').classList.remove('hidden');
                     document.getElementById('locate-loading').classList.add('hidden');
                 },
                 function(error) {
-                    clearTimeout(forceTimeout);
-                    console.error('❌ Geolocation error:', error);
-                    console.log('🔢 Error code:', error.code);
-                    console.log('💬 Error message:', error.message);
-                    
-                    // Hide loading state
                     document.getElementById('locate-btn').classList.remove('hidden');
                     document.getElementById('locate-loading').classList.add('hidden');
-
-                    let errorMsg = '❌ Unable to get your location';
-                    let instructions = '';
-                    
-                    switch (error.code) {
-                        case 1: // PERMISSION_DENIED
-                            errorMsg = 'Location denied';
-                            instructions = 'Allow location in browser';
-                            console.log('🚫 User denied location permission');
-                            break;
-                        case 2: // POSITION_UNAVAILABLE
-                            errorMsg = 'Location unavailable';
-                            instructions = 'Check GPS/WiFi';
-                            console.log('📡 Position unavailable - GPS/network issue');
-                            break;
-                        case 3: // TIMEOUT
-                            errorMsg = 'Location timeout';
-                            instructions = 'Try again';
-                            console.log('⏱️ Geolocation timeout');
-                            break;
-                        default:
-                            errorMsg = `Location error (${error.code})`;
-                            instructions = error.message;
-                            console.log('❓ Unknown geolocation error:', error);
-                    }
-                    
-                    showToast(errorMsg);
-                    
-                    // Show detailed instructions after a delay
-                    setTimeout(() => {
-                        if (instructions) {
-                            showToast(instructions);
-                        }
-                    }, 2500);
+                    showToast('Could not get location');
                 },
-                {
-                    enableHighAccuracy: true,    // Use GPS for better accuracy
-                    timeout: 10000,             // 10 second timeout
-                    maximumAge: 60000           // 1 minute cache
-                }
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
             );
         }
 
         function reverseGeocode(lat, lng) {
             const geocoder = new google.maps.Geocoder();
-            const latLng = { lat: lat, lng: lng };
+            geocoder.geocode({ location: { lat, lng } }, function (results, status) {
+                if (status === 'OK' && results[0]) {
+                    const address = results[0];
+                    let city = '', zipCode = '', country = '', route = '';
 
-            geocoder.geocode({ 'location': latLng }, function (results, status) {
-                if (status === 'OK') {
-                    if (results[0]) {
-                        const address = results[0];
-
-                        // Extract address components
-                        let streetNumber = '';
-                        let route = '';
-                        let city = '';
-                        let zipCode = '';
-                        let country = '';
-
-                        for (const component of address.address_components) {
-                            const componentType = component.types[0];
-
-                            switch (componentType) {
-                                case 'street_number':
-                                    streetNumber = component.long_name;
-                                    break;
-                                case 'route':
-                                    route = component.long_name;
-                                    break;
-                                case 'locality':
-                                    city = component.long_name;
-                                    break;
-                                case 'postal_code':
-                                    zipCode = component.long_name;
-                                    break;
-                                case 'country':
-                                    country = component.long_name;
-                                    break;
-                            }
-                        }
-
-                        // Set the address line
-                        let addressLine = '';
-                        if (streetNumber && route) {
-                            addressLine = `${streetNumber} ${route}`;
-                        } else if (route) {
-                            addressLine = route;
-                        } else {
-                            // Fallback to formatted address
-                            addressLine = address.formatted_address.split(',')[0];
-                        }
-
-                        document.getElementById('address-line').value = addressLine;
-
-                        // Set city
-                        if (city) {
-                            document.getElementById('address-city').value = city;
-                        }
-
-                        // Set ZIP code
-                        if (zipCode) {
-                            document.getElementById('address-zip').value = zipCode;
-                        }
-
-                        // Set country
-                        if (country) {
-                            document.getElementById('address-country').value = country;
-                        }
-
-                        // Suggest a label if none is set
-                        if (!document.getElementById('address-label').value) {
-                            document.getElementById('address-label').value = 'My Location';
-                        }
+                    for (const c of address.address_components) {
+                        const type = c.types[0];
+                        if (type === 'route') route = c.long_name;
+                        if (type === 'locality') city = c.long_name;
+                        if (type === 'postal_code') zipCode = c.long_name;
+                        if (type === 'country') country = c.long_name;
                     }
-                } else {
-                    console.error('Geocoder failed due to: ' + status);
+
+                    if (route) document.getElementById('address-line').value = route;
+                    else document.getElementById('address-line').value = address.formatted_address.split(',')[0];
+                    if (city) document.getElementById('address-city').value = city;
+                    if (zipCode) document.getElementById('address-zip').value = zipCode;
+                    if (country) document.getElementById('address-country').value = country;
                 }
             });
         }
 
         function confirmLocation() {
-            console.log('📍 Confirming location:', selectedLocation);
-            
             if (selectedLocation) {
-                const lat = selectedLocation.lat;
-                const lng = selectedLocation.lng;
-                
-                // Ensure coordinates are valid numbers
-                if (typeof lat === 'number' && typeof lng === 'number' && !isNaN(lat) && !isNaN(lng)) {
-                    document.getElementById('address-lat').value = lat;
-                    document.getElementById('address-lng').value = lng;
-                    document.getElementById('coordinates-display').textContent =
-                        `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-                    
-                    console.log('✅ Location confirmed:', lat, lng);
-                    showToast('Location selected');
-                } else {
-                    console.error('❌ Invalid location data:', selectedLocation);
-                    showToast('Invalid location');
-                    return;
-                }
+                document.getElementById('address-lat').value = selectedLocation.lat;
+                document.getElementById('address-lng').value = selectedLocation.lng;
+                document.getElementById('coordinates-display').textContent = 'Location set';
+                showToast('Location pinned');
             } else {
-                console.warn('⚠️ No location selected');
-                showToast('Select location first');
+                showToast('Tap map to select');
                 return;
             }
-            
             closeMapModal();
         }
 
         document.getElementById('address-form').onsubmit = async function (e) {
             e.preventDefault();
-            console.log('📝 Form submission started...');
-            
-            // Get form values
+
             const label = document.getElementById('address-label').value.trim();
             const addressLine = document.getElementById('address-line').value.trim();
             const city = document.getElementById('address-city').value.trim();
@@ -767,209 +610,84 @@
             const lng = document.getElementById('address-lng').value;
             const isDefault = document.getElementById('address-default').checked;
             const editId = document.getElementById('edit-index').value;
-            
-            console.log('📋 Form data:', {
-                label, addressLine, city, zipCode, country, lat, lng, isDefault, editId
-            });
-            
-            // Validate required fields
+
             if (!label || !addressLine || !city || !zipCode || !country) {
-                showToast('Fill all fields');
+                showToast('Please fill all required fields');
                 return;
             }
-            
-            // Convert coordinates to proper format
-            let latitude = null;
-            let longitude = null;
-            
-            if (lat && lng) {
-                latitude = parseFloat(lat);
-                longitude = parseFloat(lng);
-                
-                // Validate coordinates
-                if (isNaN(latitude) || isNaN(longitude)) {
-                    console.warn('⚠️ Invalid coordinates:', lat, lng);
-                    latitude = null;
-                    longitude = null;
-                } else {
-                    console.log('📍 Valid coordinates:', latitude, longitude);
-                }
-            }
-            
-            const addressData = {
-                label,
-                address_line: addressLine,
-                city,
-                zip_code: zipCode,
-                country,
-                latitude,
-                longitude,
-                is_default: isDefault
-            };
-            
-            console.log('🚀 Sending address data:', addressData);
-            
+
+            let latitude = lat ? parseFloat(lat) : null;
+            let longitude = lng ? parseFloat(lng) : null;
+            if (isNaN(latitude)) latitude = null;
+            if (isNaN(longitude)) longitude = null;
+
+            const addressData = { label, address_line: addressLine, city, zip_code: zipCode, country, latitude, longitude, is_default: isDefault };
+
             try {
-                let result;
                 if (editId) {
-                    console.log('✏️ Updating address ID:', editId);
-                    result = await addressAPI.updateAddress(editId, addressData);
+                    await addressAPI.updateAddress(editId, addressData);
                 } else {
-                    console.log('➕ Creating new address');
-                    result = await addressAPI.createAddress(addressData);
+                    await addressAPI.createAddress(addressData);
                 }
-                
-                console.log('✅ Address saved successfully:', result);
                 closeModal();
                 loadAddresses();
-                showToast('Saved ✓');
-                
-            } catch (error) {
-                console.error('❌ Save error:', error);
-                console.log('🔍 Error details:', {
-                    message: error.message,
-                    stack: error.stack
-                });
-                
-                if (error.message.includes('401') || error.message.includes('Unauthorized')) {
-                    showToast('Session expired');
-                    setTimeout(() => window.location.href = '/auth/3-Taaza-Login.html', 2000);
-                } else if (error.message.includes('400')) {
-                    showToast('Invalid data');
-                } else if (error.message.includes('500')) {
-                    showToast('Server error');
-                } else {
-                    showToast('Save failed');
-                }
-            }
-        };
-
-        function editAddress(addressId) {
-            const addr = addresses.find(a => a.id === addressId);
-            if (!addr) return;
-            openModal(addr);
-        }
-
-        async function deleteAddress(addressId) {
-            if (confirm('Are you sure you want to delete this address?')) {
-                try {
-                    await addressAPI.deleteAddress(addressId);
-                    loadAddresses();
-                    showToast('Deleted ✓');
-                } catch (error) {
-                    if (error.message.includes('401')) {
-                        showToast('Session expired');
-                        setTimeout(() => window.location.href = '/auth/3-Taaza-Login.html', 2000);
-                    } else {
-                        showToast('Delete failed');
-                    }
-                }
-            }
-        }
-
-        async function setDefaultAddress(addressId) {
-            try {
-                await addressAPI.setDefaultAddress(addressId);
-                loadAddresses();
-                showToast('Updated ✓');
+                showToast('Address saved!');
             } catch (error) {
                 if (error.message.includes('401')) {
                     showToast('Session expired');
                     setTimeout(() => window.location.href = '/auth/3-Taaza-Login.html', 2000);
                 } else {
-                    showToast('Update failed');
+                    showToast('Failed to save');
                 }
             }
+        };
+
+        function editAddress(id) {
+            const addr = addresses.find(a => a.id === id);
+            if (addr) openModal(addr);
         }
 
-        // Enhanced toast notification
-        function showToast(msg, duration = 3000) {
+        async function deleteAddress(id) {
+            try {
+                await addressAPI.deleteAddress(id);
+                loadAddresses();
+                showToast('Address deleted');
+            } catch (error) {
+                showToast('Delete failed');
+            }
+        }
+
+        async function setDefaultAddress(id) {
+            try {
+                await addressAPI.setDefaultAddress(id);
+                loadAddresses();
+                showToast('Default updated');
+            } catch (error) {
+                showToast('Update failed');
+            }
+        }
+
+        function showToast(msg) {
             let toast = document.getElementById('toast');
-            if (!toast) {
-                toast = document.createElement('div');
-                toast.id = 'toast';
-                toast.className = 'fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-primary text-white px-6 py-3 rounded-lg shadow-lg z-50 hidden max-w-sm text-center';
-                document.body.appendChild(toast);
-            }
-            
-            // Clear any existing timeout
-            if (toast.timeoutId) {
-                clearTimeout(toast.timeoutId);
-            }
-            
+            if (toast.timeoutId) clearTimeout(toast.timeoutId);
             toast.textContent = msg;
             toast.classList.remove('hidden');
-            
-            toast.timeoutId = setTimeout(() => {
-                toast.classList.add('hidden');
-            }, duration);
+            toast.timeoutId = setTimeout(() => toast.classList.add('hidden'), 2500);
         }
 
-        // Location help function
-        function showLocationHelp() {
-            const helpMsg = `📍 Location Help:\n\n1. Click 🔒 icon in address bar\n2. Select "Allow" for location\n3. Try "Use My Location" again\n\nIf still not working:\n• Enable GPS/Location Services\n• Check WiFi connection\n• Use HTTPS (not HTTP)\n• Try refreshing the page`;
-            
-            if (confirm(helpMsg + '\n\nOpen browser location settings?')) {
-                // This will prompt user to check their browser settings
-                showToast('Check location settings');
-            }
-        }
-
-        // Debug location permissions
-        function checkLocationPermissions() {
-            if ('permissions' in navigator) {
-                navigator.permissions.query({name: 'geolocation'}).then(function(result) {
-                    console.log('🔒 Geolocation permission:', result.state);
-                    
-                    if (result.state === 'denied') {
-                        showToast('🚫 Location blocked. Check browser settings.');
-                    } else if (result.state === 'prompt') {
-                        showToast('📍 Location will prompt when requested.');
-                    } else if (result.state === 'granted') {
-                        showToast('✅ Location permission granted.');
-                    }
-                });
-            }
-        }
-
-        // Test location on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Page loaded, checking location support...');
-            
-            if (navigator.geolocation) {
-                console.log('✅ Geolocation API supported');
-                checkLocationPermissions();
-            } else {
-                console.log('❌ Geolocation API not supported');
-            }
-            
-            // Check if we're on secure context
-            if (window.isSecureContext) {
-                console.log('✅ Secure context (HTTPS/localhost)');
-            } else {
-                console.log('⚠️ Insecure context - geolocation may not work');
-            }
-        });
-
-        // Initial load
-        loadAddresses();
-        
         async function loadAddresses() {
             try {
                 addresses = await addressAPI.getAddresses();
                 renderAddresses();
             } catch (error) {
-                console.error('Failed to load addresses:', error);
-                if (error.message.includes('401') || error.message.includes('Invalid token')) {
+                if (error.message.includes('401')) {
                     showToast('Session expired');
-                    setTimeout(() => {
-                        window.location.href = '/auth/3-Taaza-Login.html';
-                    }, 2000);
-                } else {
-                    showToast('Load failed');
+                    setTimeout(() => window.location.href = '/auth/3-Taaza-Login.html', 2000);
                 }
             }
         }
+
+        loadAddresses();
     </script>
 </body>
 
