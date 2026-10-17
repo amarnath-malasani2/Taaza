@@ -112,7 +112,7 @@ func UpdatePersonalInfo(c *gin.Context) {
 
 func GetProfile(c *gin.Context) {
 	userID := c.GetInt("user_id")
-	
+
 	logrus.Infof("GetProfile called for user ID: %d", userID)
 
 	var user struct {
@@ -174,8 +174,12 @@ func UpdateProfile(c *gin.Context) {
 }
 
 func CompleteUserProfile(c *gin.Context) {
+	userID := c.GetInt("user_id")
+	if userID <= 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Verified session required"})
+		return
+	}
 	type CompleteUserProfileRequest struct {
-		Email  string `json:"email" validate:"required,email"`
 		Name   string `json:"name" validate:"required,min=2,max=50"`
 		Mobile string `json:"mobile" validate:"required,len=10,numeric"`
 	}
@@ -203,7 +207,7 @@ func CompleteUserProfile(c *gin.Context) {
 
 	// Check if mobile number is already used by another user
 	var existingUserID int
-	err := database.DB.QueryRow("SELECT id FROM users WHERE mobile = $1 AND email != $2", req.Mobile, req.Email).Scan(&existingUserID)
+	err := database.DB.QueryRow("SELECT id FROM users WHERE mobile = $1 AND id != $2", req.Mobile, userID).Scan(&existingUserID)
 	if err == nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "Mobile number is already registered with another account"})
 		return
@@ -214,8 +218,8 @@ func CompleteUserProfile(c *gin.Context) {
 	}
 
 	// Update user with name, mobile and mark profile as completed
-	_, err = database.DB.Exec("UPDATE users SET name = $1, mobile = $2, profile_completed = true, registration_status = 'completed', updated_at = NOW() WHERE email = $3",
-		req.Name, req.Mobile, req.Email)
+	result, err := database.DB.Exec("UPDATE users SET name = $1, mobile = $2, profile_completed = true, registration_status = 'completed', updated_at = NOW() WHERE id = $3 AND is_verified = true",
+		req.Name, req.Mobile, userID)
 	if err != nil {
 		logrus.Error("CompleteUserProfile - Database error during update:", err)
 		// Enhanced error detection for constraint violations
@@ -230,9 +234,11 @@ func CompleteUserProfile(c *gin.Context) {
 		return
 	}
 
-	// Get user ID for logging
-	var userID int
-	database.DB.QueryRow("SELECT id FROM users WHERE email = $1", req.Email).Scan(&userID)
+	rows, err := result.RowsAffected()
+	if err != nil || rows != 1 {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Verified account required"})
+		return
+	}
 	utils.LogActivity(userID, "profile_complete", "User completed profile setup", c.ClientIP())
 
 	c.JSON(http.StatusOK, gin.H{"message": "Profile completed successfully"})
@@ -268,16 +274,16 @@ func UpdateUserProfile(c *gin.Context) {
 	} else {
 		dateOfBirth = req.DateOfBirth
 	}
-	
+
 	var gender interface{}
 	if req.Gender == "" {
 		gender = nil
 	} else {
 		gender = req.Gender
 	}
-	
+
 	logrus.Infof("Updating user %d: name=%s, gender=%v, dob=%v", userID, req.Name, gender, dateOfBirth)
-	
+
 	_, err := database.DB.Exec("UPDATE users SET name = $1, gender = $2, date_of_birth = $3, updated_at = NOW() WHERE id = $4",
 		req.Name, gender, dateOfBirth, userID)
 	if err != nil {

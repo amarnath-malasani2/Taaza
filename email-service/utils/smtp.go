@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"net/smtp"
 	"os"
@@ -38,7 +39,10 @@ func GetSMTPConfig() SMTPConfig {
 
 func SendEmail(to, subject, templateName string, data EmailData) error {
 	config := GetSMTPConfig()
-	
+	if os.Getenv("SMTP_MODE") == "capture" && os.Getenv("APP_ENV") != "development" && os.Getenv("APP_ENV") != "test" {
+		return fmt.Errorf("mail capture is allowed only in development/test")
+	}
+
 	// Load template
 	templatePath := filepath.Join("templates", templateName+".html")
 	tmpl, err := template.ParseFiles(templatePath)
@@ -63,9 +67,12 @@ func SendEmail(to, subject, templateName string, data EmailData) error {
 		body.String())
 
 	// Send email
-	auth := smtp.PlainAuth("", config.Username, config.Password, config.Host)
+	var auth smtp.Auth
+	if os.Getenv("SMTP_MODE") != "capture" {
+		auth = smtp.PlainAuth("", config.Username, config.Password, config.Host)
+	}
 	err = smtp.SendMail(config.Host+":"+config.Port, auth, config.From, []string{to}, message)
-	
+
 	if err != nil {
 		logrus.Error("Failed to send email:", err)
 		return err

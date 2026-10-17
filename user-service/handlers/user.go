@@ -121,9 +121,9 @@ func Login(c *gin.Context) {
 	response := gin.H{
 		"token": token,
 		"user": gin.H{
-			"id": user.ID,
-			"name": user.Name,
-			"email": user.Email,
+			"id":                  user.ID,
+			"name":                user.Name,
+			"email":               user.Email,
 			"registration_status": user.RegistrationStatus,
 		},
 	}
@@ -249,15 +249,15 @@ func LoginVerifyOTP(c *gin.Context) {
 	isNewUser := !user.ProfileCompleted || !mobile.Valid || mobile.String == ""
 
 	response := gin.H{
-		"token": token,
+		"token":     token,
 		"isNewUser": isNewUser,
 	}
 
 	if !isNewUser {
 		response["user"] = gin.H{
-			"id": user.ID,
-			"name": user.Name,
-			"email": user.Email,
+			"id":     user.ID,
+			"name":   user.Name,
+			"email":  user.Email,
 			"mobile": mobile.String,
 		}
 	}
@@ -266,30 +266,5 @@ func LoginVerifyOTP(c *gin.Context) {
 }
 
 func VerifyOTP(c *gin.Context) {
-	var req models.VerifyOTPRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := validate.Struct(req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if !utils.VerifyOTP(req.Email, req.OTP) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid OTP"})
-		return
-	}
-
-	// Update user verification status
-	_, err := database.DB.Exec("UPDATE users SET is_verified = true, registration_status = 'verified' WHERE email = $1", req.Email)
-	if err != nil {
-		logrus.Error("Database error:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "OTP verified successfully", "redirect": "complete-profile"})
+	LoginVerifyOTP(c)
 }
-

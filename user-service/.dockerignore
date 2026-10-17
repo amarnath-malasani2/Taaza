@@ -1,0 +1,6 @@
+.env
+.env.*
+*_test.go
+uploads
+*.exe
+main

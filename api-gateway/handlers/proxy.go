@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -39,7 +40,7 @@ func proxyRequest(c *gin.Context, targetURL string) {
 	}
 
 	// Create new request
-	req, err := http.NewRequest(c.Request.Method, url, bytes.NewBuffer(bodyBytes))
+	req, err := http.NewRequestWithContext(c.Request.Context(), c.Request.Method, url, bytes.NewBuffer(bodyBytes))
 	if err != nil {
 		logrus.Error("Failed to create request:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
@@ -62,7 +63,7 @@ func proxyRequest(c *gin.Context, targetURL string) {
 	}
 
 	// Make request
-	client := &http.Client{}
+	client := &http.Client{Timeout: 15 * time.Second, CheckRedirect: func(_ *http.Request, _ []*http.Request) error { return http.ErrUseLastResponse }}
 	resp, err := client.Do(req)
 	if err != nil {
 		logrus.Error("Failed to proxy request:", err)
@@ -85,24 +86,24 @@ func proxyRequest(c *gin.Context, targetURL string) {
 
 func RouteBasedOnJWT(c *gin.Context) {
 	path := c.Request.URL.Path
-	
+
 	// Admin routes
 	if strings.HasPrefix(path, "/api/v1/admin/") {
 		ProxyToAdminService(c)
 		return
 	}
-	
+
 	// User routes
 	if strings.HasPrefix(path, "/api/v1/users/") {
 		ProxyToUserService(c)
 		return
 	}
-	
+
 	// Inventory routes
 	if strings.HasPrefix(path, "/api/v1/inventory/") {
 		ProxyToInventoryService(c)
 		return
 	}
-	
+
 	c.JSON(http.StatusNotFound, gin.H{"error": "Route not found"})
 }

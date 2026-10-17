@@ -4,6 +4,7 @@ import (
 	"admin-service/database"
 	"admin-service/handlers"
 	"admin-service/middleware"
+	"admin-service/utils"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -11,6 +12,9 @@ import (
 )
 
 func main() {
+	if err := utils.ValidateSigningConfiguration(); err != nil {
+		logrus.Fatal(err)
+	}
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 	logrus.SetLevel(logrus.InfoLevel)
 
@@ -20,19 +24,6 @@ func main() {
 	defer database.Close()
 
 	r := gin.Default()
-
-	// CORS middleware
-	r.Use(func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
-		c.Header("Access-Control-Allow-Credentials", "true")
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-		c.Next()
-	})
 
 	v1 := r.Group("/api/v1")
 	{
@@ -58,7 +49,7 @@ func main() {
 				users.GET("/:id/addresses", handlers.GetUserAddresses)
 				users.GET("/:id/sessions", handlers.GetUserSessions)
 			}
-			
+
 			admin.GET("/activity/recent", handlers.GetRecentActivity)
 			admin.POST("/sessions/:id/revoke", handlers.RevokeSession)
 		}
@@ -72,7 +63,7 @@ func main() {
 	if port == "" {
 		port = "8082"
 	}
-	
+
 	logrus.Infof("Admin service starting on port %s", port)
 	r.Run(":" + port)
 }
