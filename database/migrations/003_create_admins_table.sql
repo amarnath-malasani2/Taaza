@@ -29,17 +29,5 @@ CREATE TABLE IF NOT EXISTS admin_activity (
 CREATE INDEX IF NOT EXISTS idx_admin_activity_admin_id ON admin_activity(admin_id);
 CREATE INDEX IF NOT EXISTS idx_admin_activity_created_at ON admin_activity(created_at);
 
--- Insert a default super admin
--- Email: admin@taaza.com
--- Password: Admin@123
--- Password hash generated using bcrypt cost 10
-INSERT INTO admins (email, password_hash, name, role)
-VALUES (
-    'admin@taaza.com',
-    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
-    'Super Admin',
-    'super_admin'
-) ON CONFLICT (email) DO NOTHING;
-
 COMMENT ON TABLE admins IS 'Admin users for the Taaza admin panel';
 COMMENT ON TABLE admin_activity IS 'Audit log for admin actions';

@@ -17,6 +17,9 @@ func main() {
 	logrus.SetLevel(logrus.InfoLevel)
 
 	config.LoadConfig()
+	if err := utils.ValidateSigningConfiguration(); err != nil {
+		logrus.Fatal(err)
+	}
 
 	if err := database.Connect(); err != nil {
 		logrus.Fatal("Failed to connect to database:", err)
@@ -44,7 +47,7 @@ func main() {
 			users.POST("/verify-otp", handlers.VerifyOTP)
 			users.POST("/login-otp", handlers.LoginWithOTP)
 			users.POST("/login-verify-otp", handlers.LoginVerifyOTP)
-			users.POST("/complete-profile", handlers.CompleteUserProfile)
+			users.POST("/complete-profile", middleware.AuthMiddleware(), handlers.CompleteUserProfile)
 			users.POST("/login", handlers.Login)
 			users.POST("/logout", handlers.Logout)
 			users.POST("/logout-all", middleware.AuthMiddleware(), handlers.LogoutAll)
@@ -52,21 +55,21 @@ func main() {
 			users.PUT("/update-profile", middleware.AuthMiddleware(), handlers.UpdateUserProfileSecure)
 			users.PUT("/personal-info", middleware.AuthMiddleware(), handlers.UpdatePersonalInfo)
 			users.POST("/upload-picture", middleware.AuthMiddleware(), handlers.UploadProfilePicture)
-			
+
 			// Address routes
 			users.GET("/addresses", middleware.AuthMiddleware(), handlers.GetAddresses)
 			users.POST("/addresses", middleware.AuthMiddleware(), handlers.CreateAddress)
 			users.PUT("/addresses/:id", middleware.AuthMiddleware(), handlers.UpdateAddress)
 			users.DELETE("/addresses/:id", middleware.AuthMiddleware(), handlers.DeleteAddress)
 			users.PUT("/addresses/:id/default", middleware.AuthMiddleware(), handlers.SetDefaultAddress)
-			
+
 			// Subscription routes
 			users.GET("/subscriptions", middleware.AuthMiddleware(), handlers.GetUserSubscriptions)
 			users.POST("/subscriptions", middleware.AuthMiddleware(), handlers.CreateSubscription)
 			users.PUT("/subscriptions/:id", middleware.AuthMiddleware(), handlers.UpdateSubscription)
 			users.PUT("/subscriptions/:id/address", middleware.AuthMiddleware(), handlers.UpdateSubscriptionAddress)
 			users.DELETE("/subscriptions/:id", middleware.AuthMiddleware(), handlers.DeleteSubscription)
-			
+
 			// Preference routes
 			users.GET("/preferences", middleware.AuthMiddleware(), handlers.GetUserPreferences)
 			users.POST("/preferences", middleware.AuthMiddleware(), handlers.SetUserPreference)

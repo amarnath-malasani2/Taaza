@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -23,7 +24,7 @@ func SecurityHeaders() gin.HandlerFunc {
 		c.Header("X-XSS-Protection", "1; mode=block")
 		c.Header("Referrer-Policy", "strict-origin-when-cross-origin")
 		c.Header("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
-		
+
 		// Content Security Policy
 		csp := "default-src 'self'; " +
 			"script-src 'self' 'nonce-" + nonce + "' https://cdn.tailwindcss.com; " +
@@ -45,36 +46,36 @@ func SecurityHeaders() gin.HandlerFunc {
 
 // Rate limiting middleware
 func RateLimit() gin.HandlerFunc {
-	requests := make(map[string][]time.Time)
-	const maxRequests = 10
-	const timeWindow = time.Minute
-
+	type window struct {
+		start time.Time
+		count int
+	}
+	var mu sync.Mutex
+	requests := make(map[string]window)
 	return func(c *gin.Context) {
-		clientIP := c.ClientIP()
 		now := time.Now()
-
-		// Clean old requests
-		if times, exists := requests[clientIP]; exists {
-			var validTimes []time.Time
-			for _, t := range times {
-				if now.Sub(t) < timeWindow {
-					validTimes = append(validTimes, t)
-				}
+		ip := c.ClientIP()
+		mu.Lock()
+		for key, item := range requests {
+			if now.Sub(item.start) >= time.Minute {
+				delete(requests, key)
 			}
-			requests[clientIP] = validTimes
 		}
-
-		// Check rate limit
-		if len(requests[clientIP]) >= maxRequests {
-			c.JSON(http.StatusTooManyRequests, gin.H{
-				"error": "Rate limit exceeded. Please try again later.",
-			})
-			c.Abort()
+		item := requests[ip]
+		if item.start.IsZero() {
+			item.start = now
+		}
+		limited := item.count >= 120 || (len(requests) >= 10000 && item.count == 0)
+		if !limited {
+			item.count++
+			requests[ip] = item
+		}
+		mu.Unlock()
+		if limited {
+			c.Header("Retry-After", "60")
+			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{"error": "Rate limit exceeded"})
 			return
 		}
-
-		// Add current request
-		requests[clientIP] = append(requests[clientIP], now)
 		c.Next()
 	}
 }

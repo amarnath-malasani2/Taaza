@@ -1,0 +1,17 @@
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!.env.production.example
+**/uploads/*
+**/main
+**/*.exe
+**/coverage.out
+test-results/
+playwright-report/
+secrets/
+backups/
+node_modules/
+__pycache__/
+

@@ -16,22 +16,12 @@ func main() {
 	logrus.SetLevel(logrus.InfoLevel)
 
 	config.LoadConfig()
+	if err := utils.ValidateSigningConfiguration(); err != nil {
+		logrus.Fatal(err)
+	}
 	utils.InitRedis()
 
 	r := gin.Default()
-
-	// CORS middleware
-	r.Use(func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
-		c.Header("Access-Control-Allow-Credentials", "true")
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-		c.Next()
-	})
 
 	// Health check
 	r.GET("/health", func(c *gin.Context) {
@@ -48,7 +38,7 @@ func main() {
 			users.POST("/verify-otp", handlers.ProxyToUserService)
 			users.POST("/login-otp", middleware.OTPRateLimitMiddleware(), handlers.ProxyToUserService)
 			users.POST("/login-verify-otp", handlers.ProxyToUserService)
-			users.POST("/complete-profile", handlers.ProxyToUserService)
+			users.POST("/complete-profile", middleware.AuthMiddleware(), handlers.ProxyToUserService)
 			users.POST("/login", handlers.ProxyToUserService)
 
 			// Protected routes (auth required)

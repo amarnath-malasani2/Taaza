@@ -1,169 +1,142 @@
-version: '3.8'
-
+# Development defaults are deliberately fake. Production overrides require real values.
+x-db: &db
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_USER: taaza
+  DB_PASSWORD: ${DB_PASSWORD:-demo-only-database-password}
+x-runtime: &runtime
+  APP_ENV: ${APP_ENV:-development}
+  TZ: Asia/Kolkata
+x-service: &service
+  restart: unless-stopped
+  networks: [taaza-network]
+  logging:
+    driver: json-file
+    options: {max-size: "10m", max-file: "3"}
 services:
-  # Database
   postgres:
-    image: postgres:13
+    <<: *service
+    image: postgres:17-alpine
     environment:
       POSTGRES_USER: taaza
-      POSTGRES_PASSWORD: taaza123
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-demo-only-database-password}
       POSTGRES_DB: taaza_main
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/init-scripts:/docker-entrypoint-initdb.d
-    networks:
-      - taaza-network
+      - ./database/init-scripts:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U taaza -d taaza_main"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # Redis for caching
+      test: [CMD-SHELL, "pg_isready -U taaza -d taaza_main"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
   redis:
-    image: redis:alpine
-    ports:
-      - "6379:6379"
-    networks:
-      - taaza-network
+    <<: *service
+    image: valkey/valkey:8-alpine
+    command: [valkey-server, --appendonly, "yes"]
+    volumes: [valkey_data:/data]
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # User Service
+      test: [CMD, valkey-cli, ping]
+      interval: 5s
+      timeout: 3s
+      retries: 20
   user-service:
+    <<: *service
     build: ./user-service
-    ports:
-      - "8081:8081"
     environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USER=taaza
-      - DB_PASSWORD=taaza123
-      - DB_NAME=taaza_users
-      - REDIS_URL=redis:6379
-      - JWT_SECRET=your-secret-key-here
-      - PORT=8081
-      - EMAIL_SERVICE_URL=http://email-service:8084
+      <<: [*db, *runtime]
+      DB_NAME: taaza_users
+      REDIS_URL: redis:6379
+      JWT_SECRET: ${JWT_SECRET:-demo-only-customer-signing-key-32-chars-minimum}
+      PORT: "8081"
+      EMAIL_SERVICE_URL: http://email-service:8084
+    volumes: [uploads:/app/uploads]
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - taaza-network
-    restart: unless-stopped
-
-  # Admin Service
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
   admin-service:
+    <<: *service
     build: ./admin-service
-    ports:
-      - "8082:8082"
     environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USER=taaza
-      - DB_PASSWORD=taaza123
-      - DB_NAME=taaza_users
-      - PORT=8082
+      <<: [*db, *runtime]
+      DB_NAME: taaza_users
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET:-demo-only-admin-signing-key-32-chars-minimum}
+      PORT: "8082"
     depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - taaza-network
-    restart: unless-stopped
-
-  # Email Service
-  email-service:
-    build: ./email-service
-    ports:
-      - "8084:8084"
+      postgres: {condition: service_healthy}
+  bootstrap-admin:
+    <<: *service
+    build: ./admin-service
+    profiles: [tools]
+    restart: "no"
+    command: [./bootstrap-admin]
     environment:
-      - PORT=8084
-      - REDIS_URL=redis:6379
-      - SMTP_HOST=smtp.gmail.com
-      - SMTP_PORT=587
-      - SMTP_USER=amarnathmalasani2@gmail.com
-      - SMTP_PASS=eius tppe wepd cuxz
-      - SMTP_FROM=amarnathmalasani2@gmail.com
-      - APP_URL=http://localhost:3000
+      <<: [*db, *runtime]
+      DB_NAME: taaza_users
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.test}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Demo-Only-Admin-123!}
     depends_on:
-      redis:
-        condition: service_healthy
-    networks:
-      - taaza-network
-    restart: unless-stopped
-
-  # Inventory Service
+      postgres: {condition: service_healthy}
   inventory-service:
+    <<: *service
     build: ./inventory-service
-    ports:
-      - "8083:8083"
     environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USER=taaza
-      - DB_PASSWORD=taaza123
-      - DB_NAME=taaza_inventory
-      - PORT=8083
+      <<: [*db, *runtime]
+      DB_NAME: taaza_inventory
+      PORT: "8083"
+      ADMIN_SERVICE_URL: http://admin-service:8082
+      USER_SERVICE_URL: http://user-service:8081
     depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - taaza-network
-    restart: unless-stopped
-
-  # API Gateway
+      postgres: {condition: service_healthy}
+  email-service:
+    <<: *service
+    build: ./email-service
+    environment:
+      <<: *runtime
+      REDIS_URL: redis:6379
+      PORT: "8084"
+      SMTP_MODE: ${SMTP_MODE:-capture}
+      SMTP_HOST: ${SMTP_HOST:-mailpit}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-taaza@example.test}
+      APP_URL: ${APP_URL:-http://localhost:3000}
+    depends_on:
+      redis: {condition: service_healthy}
   api-gateway:
+    <<: *service
     build: ./api-gateway
-    ports:
-      - "0.0.0.0:8080:8080"
     environment:
-      - USER_SERVICE_URL=http://user-service:8081
-      - ADMIN_SERVICE_URL=http://admin-service:8082
-      - INVENTORY_SERVICE_URL=http://inventory-service:8083
-      - REDIS_URL=redis:6379
-      - JWT_SECRET=your-secret-key-here
-      - PORT=8080
+      <<: *runtime
+      USER_SERVICE_URL: http://user-service:8081
+      ADMIN_SERVICE_URL: http://admin-service:8082
+      INVENTORY_SERVICE_URL: http://inventory-service:8083
+      REDIS_URL: redis:6379
+      JWT_SECRET: ${JWT_SECRET:-demo-only-customer-signing-key-32-chars-minimum}
+      PORT: "8080"
     depends_on:
-      - user-service
-      - admin-service
-      - email-service
-    networks:
-      - taaza-network
-    restart: unless-stopped
-
-  # Frontend - User App
+      redis: {condition: service_healthy}
+      user-service: {condition: service_started}
+      admin-service: {condition: service_started}
+      inventory-service: {condition: service_started}
   user-frontend:
+    <<: *service
     build: ./frontend/user-app
-    ports:
-      - "0.0.0.0:3000:80"
-    depends_on:
-      - api-gateway
-    networks:
-      - taaza-network
-    restart: unless-stopped
-
-  # Frontend - Admin App
+    ports: ["127.0.0.1:3000:80"]
+    depends_on: [api-gateway]
   admin-frontend:
+    <<: *service
     build: ./frontend/admin-app
-    ports:
-      - "3001:80"
-    depends_on:
-      - api-gateway
-    networks:
-      - taaza-network
-    restart: unless-stopped
-
-
-
+    ports: ["127.0.0.1:3001:80"]
+    depends_on: [api-gateway]
+  mailpit:
+    <<: *service
+    image: axllent/mailpit:v1.27
+    ports: ["127.0.0.1:8025:8025"]
 volumes:
   postgres_data:
-
+  valkey_data:
+  uploads:
 networks:
   taaza-network:
     driver: bridge

@@ -1,0 +1,9 @@
+{$CUSTOMER_DOMAIN} {
+    encode zstd gzip
+    reverse_proxy user-frontend:80
+}
+{$ADMIN_DOMAIN} {
+    encode zstd gzip
+    reverse_proxy admin-frontend:80
+}
+

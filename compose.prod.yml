@@ -1,0 +1,60 @@
+# Missing real settings stop Compose during interpolation, before deployment.
+services:
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: ${PRODUCTION_DB_PASSWORD:?Set a real production database password}
+  user-service:
+    environment:
+      APP_ENV: production
+      DB_PASSWORD: ${PRODUCTION_DB_PASSWORD:?Set production DB password}
+      JWT_SECRET: ${PRODUCTION_JWT_SECRET:?Set production customer signing key}
+  admin-service:
+    environment:
+      APP_ENV: production
+      DB_PASSWORD: ${PRODUCTION_DB_PASSWORD:?Set production DB password}
+      ADMIN_JWT_SECRET: ${PRODUCTION_ADMIN_JWT_SECRET:?Set production admin signing key}
+  bootstrap-admin:
+    environment:
+      APP_ENV: production
+      DB_PASSWORD: ${PRODUCTION_DB_PASSWORD:?Set production DB password}
+  inventory-service:
+    environment:
+      APP_ENV: production
+      DB_PASSWORD: ${PRODUCTION_DB_PASSWORD:?Set production DB password}
+  api-gateway:
+    environment:
+      APP_ENV: production
+      JWT_SECRET: ${PRODUCTION_JWT_SECRET:?Set production customer signing key}
+  email-service:
+    environment:
+      APP_ENV: production
+      APP_URL: https://${PRODUCTION_DOMAIN:?Set production customer domain}
+      SMTP_MODE: smtp
+      SMTP_HOST: ${PRODUCTION_SMTP_HOST:?Set production SMTP host}
+      SMTP_PORT: ${PRODUCTION_SMTP_PORT:-587}
+      SMTP_USER: ${PRODUCTION_SMTP_USER:?Set production SMTP user}
+      SMTP_PASS: ${PRODUCTION_SMTP_PASS:?Set production SMTP password}
+      SMTP_FROM: ${PRODUCTION_SMTP_FROM:?Set production sender address}
+  user-frontend:
+    ports: !reset []
+  admin-frontend:
+    ports: !reset []
+  mailpit:
+    profiles: [development-mail]
+  edge:
+    image: caddy:2-alpine
+    ports: ["80:80", "443:443"]
+    environment:
+      CUSTOMER_DOMAIN: ${PRODUCTION_DOMAIN:?Set production customer domain}
+      ADMIN_DOMAIN: ${PRODUCTION_ADMIN_DOMAIN:?Set production admin domain}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [user-frontend, admin-frontend]
+    networks: [taaza-network]
+    restart: unless-stopped
+volumes:
+  caddy_data:
+  caddy_config:
+

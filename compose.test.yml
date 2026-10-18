@@ -1,0 +1,26 @@
+# Standalone test project: never attach production data or start public frontends.
+services:
+  go-tests:
+    image: golang:1.27
+    working_dir: /workspace
+    volumes:
+      - .:/workspace:ro
+      - test_go_cache:/cache
+      - test_go_modules:/modules
+    environment:
+      GOCACHE: /cache
+      GOMODCACHE: /modules
+      APP_ENV: test
+    command:
+      - sh
+      - -ec
+      - |
+        for service in user-service admin-service api-gateway inventory-service email-service; do
+          cd /workspace/$$service
+          go test -race ./...
+          go vet ./...
+        done
+volumes:
+  test_go_cache:
+  test_go_modules:
+

@@ -52,7 +52,6 @@ func AdminLogin(c *gin.Context) {
 
 	// Verify password
 	logrus.Infof("Attempting password verification for admin: %s", admin.Email)
-	logrus.Infof("Password hash from DB: %s", admin.Password[:20]+"...")
 	if !utils.CheckPasswordHash(req.Password, admin.Password) {
 		logrus.Errorf("Password verification failed for admin: %s", admin.Email)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
